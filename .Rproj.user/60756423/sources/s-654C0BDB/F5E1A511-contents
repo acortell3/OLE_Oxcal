@@ -1,0 +1,382 @@
+
+################################################################################
+################################################################################
+
+####### Code for: The interacting demographic dynamics of the last hunter-gatheers and the early farmers (2024):
+####### Cortell-Nicolau, A., Rivas, J., Crema, E. R., Shennan, S., García-Puchol, O., Kolar, J., Staniuk, R., 
+####### Timpson, A.
+
+#### Code by: Alfredo Cortell-Nicolau.
+
+#### License: Permission is granted to use and adapt this code. Please 
+#### acknowledge authorship when appropriate.
+
+################################################################################
+################                                                ################
+################                 SECTION 3.1                    ################
+################                                                ################
+################################################################################
+
+################################################################################
+################                  MODELLED DATA                 ################
+################################################################################
+#set.seed(12345) ## Because I'm going to run it in different chunks. Seeds will be 1, 20, 300 and 4000
+
+#### PART 3. GENERATE THE SIMULATED DATA
+sim <- 15000 # Number of simulations
+#sim <- 1
+## Initial probable values are (from ethnographic observations and other computational models)
+# Dm -> /year, rate of Meso dissapearing
+# Gm -> /year, Meso growth rate
+# Dn -> /year, Neo mortality rate
+# e -> assimilation efficieny
+# Gn -> /year, Neo growth rate
+# K -> carrying capacity
+
+### 3.1 GENERATE THE MODELLED RAW OUTPUTS
+## Prepare utilities
+
+## Objects for storing and elements before loop
+#dataset <- c("Tactical_10_dates","Tactical_25_dates","Tactical_50_dates","Tactical_100_dates",
+#             "Tactical_200_dates","Tactical_400_dates")
+
+## Use only these because the rest are not necessary
+dataset <- c("Tactical_100_dates")#,"Tactical_200_dates")
+
+#time <- c(600,800,1000)
+time <- 1000 ## For the second one, just with 1000
+#order <- 1
+n_sim <- c(1:100)
+for (j in 1:length(n_sim)){
+  #for (k in 1:length(order)){
+  ## Load data
+  Neo_spd <- readRDS(paste0("Data/Simulated/",time,"_years/",dataset,"_f_",time,"_years_2.rds"))
+  Meso_spd <- readRDS(paste0("Data/Simulated/",time,"_years/",dataset,"_hg_",time,"_years_2.rds"))
+  Sd_hg <- readRDS(paste0("Data/Simulated/",time,"_years/Sd_",dataset,"_hg_",time,"_years_2.rds"))
+  Sd_f <- readRDS(paste0("Data/Simulated/",time,"_years/Sd_",dataset,"_f_",time,"_years_2.rds"))
+  
+  ## Set start and end
+  cal_st <- Neo_spd$grid[1,1] 
+  end_st <- Neo_spd$grid[nrow(Neo_spd$grid),1] 
+  years <- cal_st-end_st+1 
+  
+  
+  ## Number of observed dates
+  n_dates_obs <- Meso_spd$metadata$ndates+Neo_spd$metadata$ndates
+  
+  ## Initial population
+  M <- runif(1,0,120)
+  ratio <- runif(1,1,10)
+  N <- M/ratio
+  
+  #Carrying capacities
+  Kn_mult <- max(Neo_spd$grid$PrDens)/max(Meso_spd$grid$PrDens) ## Value obtained from the observation of the SPD
+  Km <- M
+  Kn <- M*Kn_mult
+  
+  ## Object to store simulated values
+  simulations_full <- list() 
+  
+  #colnames(Prior_sim_s_pars) <- c("Dm","Gm","Dn","e","Gn", "Km", "Kn", "m")#,"m") #,"Km","Kn")
+  Prior_sim_s_pars <- data.frame("Dm" = rep(NA,sim),
+                                 "Gm" = rep(NA,sim),
+                                 "Dn" = rep(NA,sim),
+                                 "e" = rep(NA,sim),
+                                 "Gn" = rep(NA,sim),
+                                 "Km" = rep(NA,sim),
+                                 "Kn" = rep(NA,sim),
+                                 "m" = rep(NA,sim))
+  
+  index <- 1
+  
+  while (index <= sim){
+    #set.seed(12345)
+    # Uniform prior distributions are considered
+    possible_pars <- c("Dm" = runif(1, max = 0.04, min = 0),
+                       "Gm" = runif(1, max = 0.022, min = 0.001), 
+                       "Dn" = runif(1, max = 0.04, min = 0),
+                       "e" = runif(1, max = 0.3, min = 0), 
+                       "Gn" = runif(1, max = 0.035, min = 0.015), 
+                       "Km" = Km,
+                       "Kn" = Kn,
+                       "m" = runif(1, max = 0.035, min = 0))
+    
+    
+    ## Proposition 1 in sup mat: Correction for discarding unrealistic parameterisations
+    ## Establish values of lambda1 and lambda2
+    Li <- possible_pars["Gm"]-(possible_pars["Dm"]*possible_pars["Kn"])
+    Lii <- (possible_pars["Gn"]+possible_pars["m"])-((possible_pars["Dn"]-(possible_pars["e"]*possible_pars["Dm"]))*possible_pars["Km"])
+    
+    ## Select parameterisation only if not unrealistic
+    if ((Li < 0 & Lii > 0) | (Li < 0 & Lii < 0)){
+      Prior_sim_s_pars <- possible_pars
+      state <- c(M = M, N = N)
+      
+      ## Store values
+      pars <- list("Dm" = Prior_sim_s_pars[1],
+                   "Gm" = Prior_sim_s_pars[2],
+                   "Dn" = Prior_sim_s_pars[3],
+                   "Gn" = Prior_sim_s_pars[5],
+                   "e" = Prior_sim_s_pars[4],
+                   "Km" = Prior_sim_s_pars[6],
+                   "Kn" = Prior_sim_s_pars[7],
+                   "m" = Prior_sim_s_pars[8])
+      
+      out <- data.frame(LotVolme(pars, times = c(1:years)))
+      
+      if (sum(out[,3])>sum(out[,2])){
+        simulations_full[[index]] <- list(out,pars[-c(6,7)],c(M,N))
+        index <- index + 1
+      }
+    }
+    
+  }
+  #colnames(Prior_sim_s_pars) <- c("Dm","Gm","Dn","e","Gn", "Km", "Kn", "m")#,"m") #,"Km","Kn")
+  
+  #simulations_full <- list() ## Empty list for storing results
+  cal_st <- Neo_spd$grid[1,1] 
+  end_st <- Neo_spd$grid[nrow(Neo_spd$grid),1] 
+  
+  #### START PARALLEL
+  cores <- 50
+  cl <- makeCluster(cores)
+  registerDoParallel(cl)
+  
+  ## CREATE REJECTION PARTICLE
+  
+  d_theta_rej <- foreach (i = 1:sim, .packages = c('rcarbon')) %dopar%{
+    
+    dat <- simulations_full[[i]][[1]][,c(2,3)] ## Assign simulation parameters to object
+    
+    Dates <- cult_afil(dat[,1],dat[,2],start = cal_st,end = end_st,n_dates_obs) ## Assign affiliations
+    
+    ## Create date vector
+    n_hg_dates <- length(Dates[Dates$Culture=="hg",1])
+    n_f_dates <- length(Dates[Dates$Culture=="f",1])  
+    
+    ## Uncalibrate
+    uncal_samples_hg <- uncalibrate(Dates[Dates$Culture=="hg",1])
+    uncal_samples_f <- uncalibrate(Dates[Dates$Culture=="f",1])
+    
+    ## Back-calibrate
+    cal_samples_hg <- calibrate(uncal_samples_hg$ccCRA, ## We sample the error from the actual errors of the observed dates 
+                                errors = (sample(Sd_hg, size = n_hg_dates, replace = T)))
+    spd_cand_hg <- spd(cal_samples_hg, timeRange = c(cal_st,end_st))
+    
+    cal_samples_f <- calibrate(uncal_samples_f$ccCRA, ## We sample the error from the actual errors of the observed dates 
+                               errors = (sample(Sd_f, size = n_f_dates, replace = T)))
+    spd_cand_f <- spd(cal_samples_f, timeRange = c(cal_st,end_st))
+    
+    ## This is for the case we have no hg or f dates
+    if (sum(spd_cand_hg$grid$PrDens) == 0){
+      spd_cand_hg$grid$PrDens <- runif(length(spd_cand_hg$grid$PrDens),0,1)
+    }
+    
+    if (sum(spd_cand_f$grid$PrDens) == 0){
+      spd_cand_f$grid$PrDens <- runif(length(spd_cand_f$grid$PrDens),0,1)
+    }
+    
+    ## Fit with summary statistic (euclidean distance)
+    dist_hg <- dist(rbind(Meso_spd$grid$PrDens, spd_cand_hg$grid$PrDens))
+    dist_f <- dist(rbind(Neo_spd$grid$PrDens, spd_cand_f$grid$PrDens))
+    eps <- dist_hg+dist_f
+    
+  }
+  
+  stopCluster(cl)
+  
+  ## Select values for summary statistic
+  d_theta_rej <- unlist(d_theta_rej)
+  names(d_theta_rej) <- c(1:sim)
+  
+  acc_d_theta_rej <- d_theta_rej[rank(d_theta_rej)<501]
+  sel <- as.numeric(as.vector(names(acc_d_theta_rej)))
+  
+  theta_prev <- simulations_full[sel]
+  saveRDS(theta_prev,file = paste0("Results/Simulated/",time,"_years/",dataset,"/Parameters_",dataset,"_",time,"_fit_rej_",n_sim[j],".rds"))
+  write.csv(d_theta_rej,file =  paste0("Results/Simulated/",time,"_years/",dataset,"/Distances_",dataset,"_",time,"_fit_",n_sim[j],".rds"))
+  ## CREATE SMC
+  n_theta <- 1 ## number of particle
+  ## For the threshold, the first value is computed, the other ones I used after having performed one first SMC and seeing 
+  ## the distances
+  #min(d_theta_rej)
+  threshold <- quantile(d_theta_rej)[2]
+  
+  #threshold_vals <- as.vector(thresholds[,order[k]])
+  
+  part_sim <- 500 ## Number of simulations for particles
+  #part_sim <-1
+  theta_i <- list()
+  theta_i_fit <- list()
+  dists <- c()
+  control <- 10
+  file_dir <- 0
+  
+  #d_theta_i <- simulations_full
+  
+  while (n_theta <= 6){
+    
+    theta_pars <- data.frame("Dm" = rep(NA,part_sim),
+                             "Gm" = rep(NA,part_sim),
+                             "Dn" = rep(NA,part_sim),
+                             "Gn" = rep(NA,part_sim),
+                             "e" = rep(NA,part_sim),
+                             "Km" = rep(NA,part_sim),
+                             "Kn" = rep(NA,part_sim),
+                             "m" = rep(NA,part_sim))
+    index2 <- 1
+    while (index2 <= part_sim){
+      #set.seed(12345)
+      cand <- sample(seq(1,length(theta_prev),1),1) ## Random select from previous particle
+      pars_cand <- unlist(theta_prev[[cand]][[2]])
+      
+      ## Kernels are 20% 
+      Dm_k <- pars_cand[1]/100*20
+      Gm_k <- pars_cand[2]/100*20
+      Dn_k <- pars_cand[3]/100*20
+      Gn_k <- pars_cand[4]/100*20
+      e_k <- pars_cand[5]/100*20
+      m_k <- pars_cand[6]/100*20
+      
+      pars <- list("Dm" = runif(1,max(c(pars_cand[1]-Dm_k),0),min(c(pars_cand[1]+Dm_k,0.04))),
+                   "Gm" = runif(1,max(c(pars_cand[2]-Gm_k),0.001),min(c(pars_cand[2]+Gm_k,0.022))),
+                   "Dn" = runif(1,max(c(pars_cand[3]-Dn_k),0),min(c(pars_cand[3]+Dn_k,0.04))),
+                   "Gn" = runif(1,max(c(pars_cand[4]-Gn_k),0.015),min(c(pars_cand[4]+Gn_k,0.035))),
+                   "e" = runif(1,max(c(pars_cand[5]-e_k),0),min(c(pars_cand[5]+e_k,0.3))),
+                   "Km" = Km,
+                   "Kn" = Kn,
+                   "m" = runif(1,max(c(pars_cand[6]-m_k),0),min(c(pars_cand[6]+m_k,0.035))))
+      ## Proposition 1 in sup mat 2: Correction for discarding unrealistic parameterisations
+      ## Establish values of lambda1 and lambda2
+      pars <- unlist(pars)
+      
+      
+      Li <- pars["Gm"]-pars["Dm"]*pars["Kn"]
+      Lii <- (pars["Gn"]+pars["m"])-((pars["Dn"]-(pars["e"]*pars["Dm"]))*pars["Km"])
+      
+      ## Select parameterisation only if not unrealistic
+      
+      if ((Li < 0 & Lii > 0) | (Li < 0 & Lii < 0)){
+        #accepted_pars <- possible_pars
+        theta_pars[index2,] <- pars
+        index2 <- index2 + 1
+      }
+      
+    }
+    
+    
+    #### START PARALLEL
+    cl <- makeCluster(cores)
+    registerDoParallel(cl)
+    
+    cand_vals <- foreach (i = 1:part_sim, .packages = c('deSolve')) %dopar%{
+      #set.seed(12345)
+      
+      state <- c(M = M, N = N)
+      
+      ## Store values
+      pars <- list("Dm" = theta_pars$Dm[i],
+                   "Gm" = theta_pars$Gm[i],
+                   "Dn" = theta_pars$Dn[i],
+                   "Gn" = theta_pars$Gn[i],
+                   "e" = theta_pars$e[i],
+                   "Km" = theta_pars$Km[i],
+                   "Kn" = theta_pars$Kn[i],
+                   "m" = theta_pars$m[i])
+      
+      
+      out <- data.frame(LotVolme(pars, times = c(1:years)))
+      
+      prov_list <- list(out,pars[-c(6,7)])
+      return(prov_list)
+      
+    } 
+    
+    stopCluster(cl)
+    
+    ## CREATE PROVISIONAL REJECTION
+    cl <- makeCluster(cores)
+    registerDoParallel(cl)
+    d_theta_i <- foreach (i = 1:part_sim, .packages = c('rcarbon')) %dopar%{
+      
+      dat <- cand_vals[[i]][[1]][,c(2,3)]
+      Dates <- cult_afil(dat[,1],dat[,2],start = cal_st,end = end_st,n_dates_obs)## Change here
+      
+      n_hg_dates <- length(Dates[Dates$Culture=="hg",1])
+      n_f_dates <- length(Dates[Dates$Culture=="f",1])  
+      
+      ## Uncalibrate
+      uncal_samples_hg <- uncalibrate(Dates[Dates$Culture=="hg",1])
+      uncal_samples_f <- uncalibrate(Dates[Dates$Culture=="f",1])
+      
+      ## Back-calibrate
+      cal_samples_hg <- calibrate(uncal_samples_hg$ccCRA, ## We sample the error from the actual errors of the observed dates 
+                                  errors = (sample(Sd_hg, size = n_hg_dates, replace = T)))
+      spd_cand_hg <- spd(cal_samples_hg, timeRange = c(cal_st,end_st))
+      
+      cal_samples_f <- calibrate(uncal_samples_f$ccCRA, ## We sample the error from the actual errors of the observed dates 
+                                 errors = (sample(Sd_f, size = n_f_dates, replace = T)))
+      spd_cand_f <- spd(cal_samples_f, timeRange = c(cal_st,end_st))
+      
+      ## This is for the case we have no hg or f dates
+      if (sum(spd_cand_hg$grid$PrDens) == 0){
+        spd_cand_hg$grid$PrDens <- runif(length(spd_cand_hg$grid$PrDens),0,1)
+      }
+      
+      if (sum(spd_cand_f$grid$PrDens) == 0){
+        spd_cand_f$grid$PrDens <- runif(length(spd_cand_f$grid$PrDens),0,1)
+      }
+      
+      dist_hg <- dist(rbind(Meso_spd$grid$PrDens, spd_cand_hg$grid$PrDens))
+      dist_f <- dist(rbind(Neo_spd$grid$PrDens, spd_cand_f$grid$PrDens))
+      eps <- sum(dist_hg+dist_f)
+      
+      prov_list2 <- list(eps,spd_cand_hg,spd_cand_f,c(M,N))
+      return(prov_list2)
+      
+    }
+    
+    stopCluster(cl)
+    
+    eps <- rep(NA,part_sim)
+    for (i in 1:part_sim){
+      eps[i] <- d_theta_i[[i]][[1]]
+    }
+    
+    names(eps) <- c(1:part_sim)
+    acc <- eps[eps <= threshold]
+    
+    dists <- append(dists,acc)
+    sel <- as.numeric(as.vector(names(acc)))
+    theta_i <- append(theta_i,cand_vals[sel])
+    theta_i_fit <- append(theta_i_fit, d_theta_i[sel])
+    
+    ## This is just to control where they are
+    if (length(theta_i)>control){
+      if (file_dir != 0){
+        file.remove(file_dir)
+      }
+      file_dir <- paste0("Results/Simulated/",time,"_years/",dataset,"/",length(theta_i),"_theta_",dataset,"_",time,"_years_",n_theta,"_",n_sim[j],".csv")
+      write.csv(length(theta_i),file = file_dir)
+      control <- control + 10
+    }
+    
+    if (length(theta_i)>part_sim){
+      theta_i <- theta_i[c(1:part_sim)]
+      theta_i_fit <- theta_i_fit[c(1:part_sim)]
+      dists <- dists[c(1:part_sim)]
+      saveRDS(theta_i,file = paste0("Results/Simulated/",time,"_years/",dataset,"/theta_",dataset,"_",time,"_years_",n_theta,"_fit_",n_sim[j],".rds"))
+      saveRDS(theta_i_fit,file = paste0("Results/Simulated/",time,"_years/",dataset,"/theta_i_fit_",dataset,"_",time,"_years_",n_theta,"_fit_",n_sim[j],".rds"))
+      
+      
+      #threshold <- threshold_vals[n_theta]
+      threshold <- quantile(dists)[2]
+      n_theta <- n_theta + 1
+      theta_prev <- theta_i
+      theta_i <- list()
+      theta_i_fit <- list()
+      dists <- c()
+    }
+  }
+  #}
+}

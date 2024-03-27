@@ -1,0 +1,358 @@
+
+################################################################################
+################################################################################
+#######                                                                 ########
+#######           ABM FOR GENERATION OF ARCHAEOLOGICAL RECORD           ########
+#######                                                                 ########
+################################################################################
+################################################################################
+
+#### THIS HAS TWO PARTS. THE FIRST OF THEM IS GENERATING THE RECORD GENERATED PER
+#### TIME 'T'. THE SECOND ONE IS LOCATING THAT RECORD THROUGH THE ARCHAEOLOGICAL
+#### SEQUENCE
+
+#### PART 1. GENERATING THE RECORD FOR A SPECIFIC TIME 'T'
+
+## Functions
+
+## Function 1. Generation of population dynamics
+#' @title Gpd
+#' Returns a data.frame with two columns, where the number of rows is the number of
+#' people. The first column contains the ages and the second column contains the sex.
+#' @param x: Input data. A data frame or matrix with two columns and nrow = Initial
+#' population. One row per individual. The first column is the age of the individual.
+#' The second column is the sex of the individual, and must be c("F","M").
+#' @param W_fer_age: Vector with two values. The first value is the youngest age
+#' at which is considered that women can have children for prehistoric societies.
+#'  The second value is the oldest age at which is considered that women can 
+#'  have children. Default is c(10,30).
+#' @param M_fer_age: Vector with two values. The first value is the youngest age
+#' at which is considered that men can have children for prehistoric societies.
+#' The second value is the oldest age at which is considered that men can have 
+#' children. Default is c(15,40)
+#' @param  P_o: Probability of a woman having a son per year. Default is 0.3.
+#' @param prob: Probability that an individual will die if total population
+#' exceeds K. Default is 0.8
+#' @param K: Carrying capacity.
+#' @param ...: This function uses the embedded function death(). 
+#' Their arguments can be added.
+#' @export
+
+Gpd <- function(x, W_fer_age = c(10,45), M_fer_age = c(15,55),
+                P_o = 0.3, prob = 0.8, K, ...){
+  
+  ### Process of having offspring
+  
+  # Female fertile population
+  W <- x[x[,2]=="F",]
+  W_fert <- W[W$Age>W_fer_age[1] & W$Age<W_fer_age[2],]
+  
+  # Male fertile population
+  M <- x[x[,2]=="M",]
+  M_fert <- M[M$Age>M_fer_age[1] & M$Age<M_fer_age[2],]
+  
+  ## Probability of having descendance per woman
+  # Penalisation in case there are too few men
+  pen <- round(nrow(M_fert)*2/nrow(W_fert),2) ## Assumes one man can have two women
+  pen[pen>1] <- 1 ## The men penalisation can never multiply the birth rate per woman
+  
+  ## Probability of a woman having a son per year
+  P_o <- P_o*pen
+  
+  Offspring <- sum(rbinom(nrow(W_fert),1,P_o))
+  x$Age <- x$Age+1 ## They get one year older
+  New_pop <- data.frame("Age" = rep(0,Offspring),                        
+                        "Sex" = sample(c("M","F"),Offspring,prob=c(0.5,0.5),replace = TRUE))
+  x <- rbind(x,New_pop)
+  
+  ### Process of dying
+  
+  vec_d <- apply(x,1,death,...)
+  x <- x[vec_d==0,]
+  
+  ## Apply carrying capacty restrictions
+  x <- K_lim(x, K = K, prob = prob)
+  
+  return(x)
+}
+
+## Function 2. Simulation of death process
+#' @title death
+#' Returns a value (0,1) where 0 = person lives and 1 = person dies, based
+#' on pd (the probability matrix)
+#' Thought to use with apply
+#' @param x: An integer with the age of the person
+#' @param pd: The probability matrix for mortality by age
+#' @export
+
+## The age-structured data frame is based on Gurven, Kaplan and Supa, 2007.
+## It is extracted adapted after computation from their text (not graphs or tables)
+
+death <- function(x,pd=data.frame("Age" = c(0:99),
+                                  "P_d" = c(rep(0.14,1),
+                                            rep(0.16,4),
+                                            rep(0.05,5),
+                                            rep(0.01,24),
+                                            rep(0.03,14),
+                                            rep(0.1,10),
+                                            rep(0.3,42)))){
+  age <- as.numeric(x[1])
+  return(rbinom(1,1,prob = pd[pd$Age==age,2]))
+}
+
+## Function 3. Simulation of carrying capacity limitation
+#' @title K_lim
+#' If the population exceeds the carrying capacity, it eliminates oversize
+#' with 0.8 probability per person exceeding.
+#' @param x: Data frame or matrix. Population (number of people)
+#' @param K: Integer. Carrying capacity. Provided by the user
+#' @param prob: It is the probability of dying when surpassing carrying capacity
+#' @export
+
+K_lim <- function(x,K,prob = 0.8){
+  p <- nrow(x)
+  if (p>K){
+    o <- rbinom(p-K,1,prob)
+    o <- sum(o[o==1])
+    o[o==0] <- 1 ## Avoids problem eliminating all the df if remove == 0
+    x <- x[-sample(1:nrow(x),o,replace = FALSE),]
+  }
+  return(x)
+}
+
+## Function 4. 
+#' @title A_rates
+#' Simulation of samples generated per year (anthropogenic deposition rates)
+#' Returns the Kilograms of bone produced per year in a site.
+#' @param x: Integer (user provided), vector or data.frame. It is the number of 
+#' people inhabiting the site. If data.frame, the number of people is the number 
+#' of rows. If vector, it is the length of the vector.
+#' @param kcalpers: Quantity of kilocalories consumed per year per adult person.
+#' For easier computation, it has a range of [1.5,2.5]. Defaul is 2
+#' @param kcalmeat_eat: Proportion of kilocalories extracted from meat. Range [0,1].
+#' Default is 0.45, based on Cordain et al (2000)
+#' @param kcalmeat_prod: Quantity of kiocalories per meat kilogram. Range [1,2.5]
+#' Default is 1.5, considering goat meat.
+#' @param in_camp_eat: Proportion of food consumed within the camp. Range [0,1]. 
+#' Default is 0.55 based on Collette-Barbesque et al. (2016).
+#' @param in_camp_stay: Proportion of time spent in a specific camp. Valid for 
+#' groups with high mobility. The proportion is computed within the function, but
+#' the user introduces the weeks of occupation of the camp, where the maximum is
+#' 52 (full year). Default is 13 (weeks, or 0.25 of the year).
+#' three months a year.
+#' @param kg: Bone proportion for each animal consumed. Default is 0.07 for now, 
+#' based on Johnston et al. (2021), but perhaps I should change that. Review
+#' @export
+
+A_rates <- function(x,
+                   kcalpers = 2,
+                   kcalmeat_eat = 0.45,
+                   kcalmeat_prod = 1.5,
+                   in_camp_eat = 0.55,
+                   in_camp_stay = 13,
+                   kg = 0.07){
+  
+  if (in_camp_stay > 52) stop('A year cannot have more than 52 weeks')
+  
+  if (is.data.frame(x) == TRUE){
+    P <- nrow(x)
+  } else if (length(x) == 1){
+    P <- x
+  } else {
+    P <- length(x)
+  }
+  
+  B <- kcalpers*365
+  M <- kcalmeat_eat
+  R <- kcalmeat_prod
+  S <- in_camp_eat
+  O <- round(in_camp_stay/52,2)
+  Kg <- kg
+
+  C <- B*M
+  
+  G <- (C*S)/R ## Quantity (in kg) of animal consumed per person in camp during year t
+  
+  A <- P*O*Kg*G ## kilograms of meat consumed within a camp by the group
+  W <- round((1000*A)/4) ## samples extracted from that meat
+  
+  return(W)
+}
+
+#### PART 2. LOCATING THAT RECORD AT A SPECIFIC DEPTH. DEPTH PROTOCOL
+
+## Function 5. 
+#' @title D_along
+#' It distributes the samples produced in one specific year along the depth of the
+#' site, without any kind of post-depositional alteration, and according to 
+#' pre-established post-deposition rates. Returns a vector with the samples exponentially
+#' distributed. The vector is as long as L/r and the error (Pb) is considered.
+#' @param x: Integer (user provided), vector or data.frame. It is the number samples
+#' produced at a specifi 't'.
+#' @param r: Is the deposition rates. At this moment, values > than 0.5 are not accepted.
+#' If values with two or more decimals are provided, the function will automatically round 
+#' the value to one decimal.
+#' @param Max_bone_thickness: Maximum thickness of bones within the assemblage. Four
+#' values are possible: small ('s') = 2.5 cm; medium ('m') = 5 cm; large ('l') = 10 cm
+#' and very large ('vl') = 20 cm. Default is 'm'.
+#' @param Pb: Proportion of samples buried sample at tmax, considering error. Pb 
+#' cannot be higher or equal to 1. Default is 0.9999, which stands for 99.99%.
+#' @export
+
+D_along <- function(x,r, Max_bone_thickness = "m", Pb = .9999){
+  
+  # Define W
+  W <- x
+  
+  # Define parameter r
+  r <- round(r,1)
+  if(r>0.5) stop("values > 0.5 are not accepted for param 'r'")
+  
+  # Define parameter Max_bone_thickness (L)
+  if (Max_bone_thickness == 's'){
+    L <- 2.5
+  } else if (Max_bone_thickness == 'm'){
+    L <- 5
+  } else if (Max_bone_thickness == 'l'){
+    L <- 10
+  } else if (Max_bone_thickness == 'vl'){
+    L <- 20
+  }
+  
+  # Constraints for parameter Pb
+  if (Pb >= 1) stop("Pb must be lower than 1")
+  
+  # Define tmax
+  tm <- L/r
+  ss <- rep(0,round(tm)) ## Vector to distribute samples over
+  
+  # Estimate lambda
+  l <- -log(1-Pb)/tm
+  tl <- 0 # Year where the sample is deposited
+  tu <- 1 # Year when it is covered
+  
+  for (i in 1:tm){
+    Wb <- W*(1-exp(-l*(tu-tl))) ## Apply formula
+    Wbprev <- W*(1-exp(-l*((tu-1)-tl))) ## To substract values previous to tu
+    ss[i] <- round(Wb-Wbprev) ## Number of samples for each year
+    tu <- tu + 1
+  }
+  
+  return(ss)
+}
+
+#### PART 3. W-PROTOCOL. RECORD ALONG DEPTH
+
+## Function 6. 
+#' @title Pop_stoch
+#' It reproduces the population stochastic process. The result is a vector with the 
+#' number of individuals for each year.
+#' @param Pop: Integer with the initial population
+#' @param K: Only if model_pop = TRUE. In this case, it is the carrying capacity
+#' @param ts: Time-span, the number of years considered for the process
+#' @param prob: Probability that an individual will die if total population
+#' exceeds K. Default is 0.8
+#' @param K: Carrying capacity.
+#' @param ...: This function uses the functions Gpd(), and thus it also uses
+#' death() and K_lim(). The additional arguments can be added.
+#' @export
+
+Pop_stoch <- function(Pop, K, prob = 0.8, ts, ...){
+  
+  ## Create initial population
+  Ip <- Pop
+  Ip <- data.frame("Age" = sample(10:30,Ip,10:30, replace = TRUE),
+                   "Sex" = sample(c("M","F"), Ip, prob = c(0.5,0.5), replace = TRUE))
+    
+  pop <- c()
+  
+  ## Run stochastic process  
+  for (i in 1:ts){
+    pop[i] <- nrow(Gpd(Ip, K = K, prob = prob, ...))
+    Ip <- Gpd(Ip, K = K, prob = prob, ...)
+  }
+  
+  return(pop)
+}
+
+## Function 7. 
+#' @title Rec_c
+#' It spreads the different amount of samples accord different profundities
+#' @param x: Vector with the number of samples per year
+#' @param persqm: If TRUE, the total record is divided by the area of the site
+#' (in square meters), so that the output belongs to each square meter. Default is
+#' FALSE
+#' @param area: Only if persqm = TRUE. In this case, the total area of the site 
+#' must be provided
+#' @param ts: Time-span, the number of years considered for the process
+#' @param InitBP: Initial year considered for the process. In BP.
+#' @param ...: This function uses the functions D_along(). The additional 
+#' arguments can be added.
+#' @export
+
+Rec_c <- function(x, persqm = FALSE, area, ts, InitBP, ...){
+  
+  ## Whether sqm division must be included or not
+  if (persqm == TRUE){
+    x <- x/area
+  }
+  
+  ## Spread dates along different depths
+  matdim <- length(x)
+  mat <- matrix(nrow=matdim,ncol=matdim)
+  
+  for (i in 1:matdim){
+    new <- D_along(x[i], ...)
+    st <- i-1
+    pos <- c(rep(0,st),new)
+    pos <- pos[1:matdim]
+    mat[,i] <- pos
+  }
+  mat[is.na(mat)] <- 0
+  
+  ## Names for columns (each year)
+  years <- seq(InitBP,InitBP-ts)
+  nyears <- c()
+  for (i in 1:matdim){
+    nyears[i] <- paste0(years[i], " BP")
+  }
+  colnames(mat) <- nyears
+  
+  ## Names for rows (each depth)
+  ## Extract arguments as a list
+  Extract_param <- function(x, ...){ 
+    extras <- list(...)
+    return(list(extras=extras)) 
+  }
+
+  dr <- Extract_param(D_along, ...)
+  dr <- dr$extras$r
+  
+  d <- rev(cumsum(rep(dr,nrow(mat)))) ## computes depths
+  rownames(mat) <- paste0("d = ", d, " cm")
+
+  return(mat)
+}
+
+#### PART 4. PROCESS
+set.seed(1234)
+Ps <- Pop_stoch(Pop=100, ts= 100, K = 150)
+samp <- unlist(lapply(Ps,A_rates)) ## Extract sample per time steps
+Rec <- Rec_c(samp, InitBP = 7500, ts = 100, r = 0.2, Max_bone_thickness = "m")
+
+## Some nice plots
+library(viridis)
+## Plot dates
+#sdate <- 1
+#edate <- 5
+#sdepth <- 1
+#edepth <- 5
+#barplot(Rec[sdepth:edepth,sdate:edate], col = viridis(10), legend = rownames(Rec)[sdate:edate],
+#        xlab = "Years BP", ylab = "nsamples", main = "Distribution of samples for each year at different depths")
+
+tRec <- t(Rec)
+barplot(tRec[c(1:4,77:79),], col = viridis(10), legend = colnames(Rec)[c(1:4,77:79)],
+        xlab = "Depth", ylab = "nsamples", main = "Distribution of specific years along depth with population")
+lines(Ps*300, col = "darkred", lwd = 1.5)
+
+

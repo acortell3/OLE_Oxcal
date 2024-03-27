@@ -1,0 +1,9 @@
+# Create a function that generates a random number between 1 and 10
+generate_random_number <- function() {
+  return(sample(1:10, 1))
+}
+
+# Use replicate to generate 5 random numbers
+random_numbers <- replicate(5, generate_random_number())
+
+print(random_numbers)
