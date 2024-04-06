@@ -1,0 +1,39 @@
+Options(){Resolution=5;SD1=FALSE;SD2=TRUE;BCAD=FALSE;};
+Plot(){
+Phase(){
+Sequence(){
+Boundary("Start Phase"){
+Start("Start of Start Phase");
+Transition("Period of Start Phase");
+End("End of Start Phase");
+};
+Phase("Phase")
+{
+R_Date("id1",3052,100);
+R_Date("id2",3017,100);
+R_Date("id3",3026,80);
+R_Date("id4",3025,40);
+R_Date("id5",2984,100);
+R_Date("id6",3069,20);
+R_Date("id7",3191,20);
+R_Date("id8",3045,40);
+R_Date("id9",3129,20);
+R_Date("id10",3053,40);
+R_Date("id11",3080,100);
+R_Date("id12",2983,20);
+R_Date("id13",3075,60);
+R_Date("id14",3127,40);
+R_Date("id15",3029,40);
+R_Date("id16",3178,100);
+R_Date("id17",2985,80);
+R_Date("id18",3047,20);
+R_Date("id19",3161,100);
+};
+Boundary("End Phase"){
+Start("Start of End Phase");
+Transition("Period of End Phase");
+End("End of End Phase");
+};
+};
+};
+};

@@ -87,5 +87,43 @@ oxcalScriptGen = function(c14age,errors,fn,model=c("gaussian","uniform","trapezo
   close(export)
 }
 
+### Functions to fit oxcal
+
+## Trapezoid
+logi_trap <- function(x){
+  library(oxcAAR)
+  quickSetupOxcal(path = getwd())
+  oxScript_trap  <- readLines(paste0('OxScripts/trap_set_',x,'.oxcal'))
+  res_file_trap <- executeOxcalScript(oxScript_trap)
+  res_trap <- readOxcalOutput(res_file_trap)
+  results  <- res_trap
+  ii=grep("ocd\\[4\\].posterior.comment",results)
+  return(results[ii])
+}
+
+## Uniform
+logi_uni <- function(x){
+  library(oxcAAR)
+  quickSetupOxcal(path = getwd())
+  oxScript_uni  <- readLines(paste0('OxScripts/uni_set_',x,'.oxcal'))
+  res_file_uni <- executeOxcalScript(oxScript_uni)
+  res_uni <- readOxcalOutput(res_file_uni)
+  results  <- res_uni
+  ii=grep("ocd\\[3\\].posterior.comment",results)
+  return(results[ii])
+}
+
+## Gaussian
+logi_gau <- function(x){
+  library(oxcAAR)
+  quickSetupOxcal(path = getwd())
+  oxScript_gau  <- readLines(paste0('OxScripts/gau_set_',x,'.oxcal'))
+  res_file_gau <- executeOxcalScript(oxScript_gau)
+  res_gau <- readOxcalOutput(res_file_gau)
+  results  <- res_gau
+  ii=grep("ocd\\[3\\].posterior.comment",results)
+  return(results[ii])
+}
+
 
 
