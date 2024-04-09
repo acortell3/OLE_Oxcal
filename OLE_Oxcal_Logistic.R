@@ -29,9 +29,9 @@ source("Functions.R")
 
 ## Parameters
 r <- rep(0.01, n_sim) ## Rate
-s <- sample(seq(3000,10000),n_sim) ## Starting date 
-e <- s-sample(seq(300,1000),n_sim) ## End date. 
-n <- sample(seq(15,50),n_sim) ## Number of dates 
+s <- sample(seq(3000,10000),n_sim, replace = TRUE) ## Starting date 
+e <- s-sample(seq(300,1000),n_sim, replace = TRUE) ## End date. 
+n <- sample(seq(15,50),n_sim, replace = TRUE) ## Number of dates 
 k <- rep(0.00001, n_sim) ## Initial proportion of carrying capacity
 alpha <- rep(0.05, n_sim) ## Significance OLE
 
