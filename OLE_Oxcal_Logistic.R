@@ -16,8 +16,8 @@ library(oxcAAR)
 library(parallel)
 
 ## Settings
-n_sim <- 5
-cores <- 5
+n_sim <- 1000
+cores <- 16
 set.seed(123)
 
 ## Load functions
@@ -29,8 +29,8 @@ source("Functions.R")
 
 ## Parameters
 r <- rep(0.01, n_sim) ## Rate
-s <- sample(seq(3000,10000),n_sim, replace = TRUE) ## Starting date 
-e <- s-sample(seq(300,1000),n_sim, replace = TRUE) ## End date. 
+s <- rep(6000,n_sim)#sample(seq(3000,10000),n_sim, replace = TRUE) ## Starting date 
+e <- s-500#sample(seq(300,1000),n_sim, replace = TRUE) ## End date. 
 n <- sample(seq(15,50),n_sim, replace = TRUE) ## Number of dates 
 k <- rep(0.00001, n_sim) ## Initial proportion of carrying capacity
 alpha <- rep(0.05, n_sim) ## Significance OLE
@@ -156,7 +156,9 @@ oxcal_gau  <- parLapply(cl=cl,X=x,fun=logi_gau) ## Gaussian
 
 
 results <- list(OLE_med, OLE_res, oxcal_trap, oxcal_uni, oxcal_gau)
+sim_data <- list(medians_list, random_list, chrono, pars)
 saveRDS(results, "results.rds")
+saveRDS(sim_data,"sim_data.rds")
 
 
 
