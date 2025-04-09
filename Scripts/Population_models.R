@@ -1,5 +1,4 @@
 
-
 ### GENERATION PROCESSES
 
 ## Load libraries
@@ -332,7 +331,7 @@ Population_models <- list("Exponential" = Exp_pm,
                           "Normal" = Nor_pm,
                           "PERT" = Per_pm)
 
-saveRDS(Population_models, "Population_models.rds")
+saveRDS(Population_models, "../Population_models.rds")
 
 
 

@@ -6,8 +6,8 @@ library(stringr)
 library(rcarbon)
 
 ## Load data
-sim_data <- readRDS("sim_data.rds")
-results <- readRDS("results.rds")
+sim_data <- readRDS("../sim_data.rds")
+results <- readRDS("../results.rds")
 
 ## Run necessary functions
 ## Generate how many times the actual start is captured
