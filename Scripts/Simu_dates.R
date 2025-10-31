@@ -54,8 +54,14 @@ YearsBP <- data.frame("Year" = uncal_dates$ccCRA,
 
 saveRDS(YearsBP,"../Simu_data/Uncal_YearsBP_100dates.rds")
 
+######### APPROACH WITH DTRAPEZOID
+library(nimbleCarbon)
 
+modelPlot(dLogisticGrowth,a=6500,b=5000,params=c(k=0.1,r=0.01),alpha=1,col='black') #the sampling distribution where k is the proportion of K (carrying capacity).
+x <- replicate(80,rLogisticGrowth(a=6500,b=5000,k=0.1,r=0.01)) #sample 80 dates from the distribution above in calendar time (cannot use n=80 as nimble is unhappy with that)
+dates <- uncalibrate(x,CRAerrors=20)[,c('rCRA','rError')]
 
+saveRDS(dates,"../Simu_data/Uncal_YearsBP_100dates.rds") ## It purposedly overwrites the above
 
 
 
