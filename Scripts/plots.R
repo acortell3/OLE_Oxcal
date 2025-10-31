@@ -21,8 +21,8 @@ mean_NC_un <- mean(NC_uniform$samples$chain1[,'alpha[2]'])
 NC_uniform <- HPDinterval(NC_uniform$samples$chain1[,'alpha[2]'])
 
 ## Get CIs for Oxcal (from mean and sd extracted from Oxcal results)
-Oxcal_uniform <- c("mean" = 4117+1950, "upper" = 4209+1950, "lower" = 4072+1950)
-Oxcal_trapezoid <- c("mean" = 4074+1950, "upper" = 4288+1950, "lower" = 3957+1950)
+Oxcal_uniform <- c("mean" = 4412+1950, "upper" = 4473+1950, "lower" = 4368+1950)
+Oxcal_trapezoid <- c("mean" = 4333+1950, "upper" = 4489+1950, "lower" = 4138+1950)
 
 ## Merge everything into a single dataset
 results <- data.frame("mean" = c(as.integer(OLE_medians[1]),as.integer(OLE_resamp[1]),mean_NC_un, mean_NC_tr,Oxcal_uniform[1],Oxcal_trapezoid[1]),
@@ -33,8 +33,8 @@ rownames(results) <- c("OLE_medians", "OLE_resamp", "NC_uniform", "NC_trapezoid"
 
 ## Target dates
 # Uncalibrated dates
-effective_oldest_date <- c(6500,40) ## Sd is arbitrary
-sampled_oldest_date <- c(6306,60) ## As extracted from the script Simu_dates.R
+effective_oldest_date <- c(6500,20) ## Sd is arbitrary
+sampled_oldest_date <- c(6338,20) ## As extracted from the script Simu_dates.R
 
 # back-calibration
 #uncalibrate
