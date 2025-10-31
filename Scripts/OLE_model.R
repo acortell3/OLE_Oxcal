@@ -8,6 +8,8 @@ library(weibulltools)
 
 ## Load dates
 dates <- readRDS("../Simu_data/Uncal_YearsBP_100dates.rds")
+colnames(dates) <- c("Year", "Sd") 
+
 
 ## Since the dates have been uncalibrated in the simulation, I need to calibrate them back here
 cal_dates <- calibrate(dates$Year, dates$Sd)
@@ -19,16 +21,10 @@ source("functions.R")
 
 ### First, OLE for medians
 ## Function for extracting the median of a calibrated date
-median_date <- function(d,s){
-	dat <- calibrate(d,s)
-	dat <- dat$grids$`1`[,1]
-	return(median(dat))
-}
-
 dates_median <- rep(NA,nrow(dates))
 
 for (i in 1:nrow(dates)){
-	dates_median[i] <- round(median_date(d = dates[i,1],s = dates[i,2]))
+	dates_median[i] <- medCal(calibrate(dates[i,1],dates[i,2]))
 }
 
 OLE_medians <- OLE.test(dd = dates_median, alpha = 0.05)
