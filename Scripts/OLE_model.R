@@ -59,6 +59,12 @@ W_scale <- function(x,k){
 	return(l)
 }
 
+# With medians
+W_scale <- function(x,k){
+	l <- (log(2)^(1/k)) / x
+	return(l)
+}
+
 OLE_resamp$WeibullScale <- W_scale(x = OLE_resamp$Estimate, k = OLE_resamp$WeibullShape)
 
 #wx <- seq(0, 30000, length.out = 1000)
