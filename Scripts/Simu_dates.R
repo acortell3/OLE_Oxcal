@@ -19,8 +19,11 @@ for (i in 1:length(start_date)){
         		YearsBP <- uncalibrate(x,CRAerrors=C14_errors[k])[,c('rCRA','rError')]
 			colnames(YearsBP) <- c("Year", "Sd")
     			saveRDS(YearsBP,paste0("../Simu_data/Uncal_YearsBP_sim_",i,"_r_",r[j],"_error_",C14_errors[k],".rds")) ## It purposedly overwrites the above
+    			write.table(YearsBP,file = paste0("../Simu_data/Uncal_YearsBP_sim_",i,"_r_",r[j],"_error_",C14_errors[k],".txt"), sep = "\t", row.names = F) ## It purposedly overwrites the above
 		}
 	}
 }
 
+## Save start dates for later comparison
+saveRDS(start_date,"../Simu_data/start_dates.rds")
 
