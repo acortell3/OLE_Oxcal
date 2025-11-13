@@ -1,5 +1,5 @@
 
-########## SCRIPT COMBINING ALL THE METHODS PROPOSED
+######### SCRIPT COMBINING ALL THE METHODS PROPOSED
 
 ## Load libraries
 library(rcarbon)
@@ -7,85 +7,168 @@ library(oxcAAR)
 library(stringr)
 library(Rextinct)
 
+## Oxcal setup
+quickSetupOxcal() #this should be replaced by actual reference to the file path where oxcal is downloaded (otherwise would install it every time)
+
 ## Load required functions
 source('oxcal_functions.R')
 source('functions.R')
 
 ## Load data
-nfiles <- 1600/2 ## I know I have 1600 usable files in my Simu_data folder, 800 rds and 800 txt
+
 
 ## Need this to recover files by name. They match the ones in Simu_dates.R
-sim <- 100
-C14_errors <- c(20,50)
-r <- c(0.01,0.02,0.03,0.04)
+#sim <- 100
+#C14_errors <- c(20,50)
+#r <- c(0.01,0.02,0.03,0.04)
 
-for (h in 1:nfiles){
-	for (i in 1:sim){
-		for (k in 1:length(r)){
-			for (j in 1:length(C14_errors)){
-				dates  <- readRDS(paste0('../Simu_data/Uncal_YearsBP_sim_',i,'_r_',r[k],'_error_',C14_errors[j],'.rds'))
-				colnames(dates) <- c("Year","Sd")
-				dates_text  <- read.table(paste0('../Simu_data/Uncal_YearsBP_sim_',i,'_r_',r[k],'_error_',C14_errors[j],'.txt'))
+#for (h in 1:nfiles){
+#	for (i in 1:sim){
+#		for (k in 1:length(r)){
+#			for (j in 1:length(C14_errors)){
+#				dates  <- readRDS(paste0('../Simu_data/Uncal_YearsBP_sim_',i,'_r_',r[k],'_error_',C14_errors[j],'.rds'))
+#				colnames(dates) <- c("Year","Sd")
+#				dates_text  <- read.table(paste0('../Simu_data/Uncal_YearsBP_sim_',i,'_r_',r[k],'_error_',C14_errors[j],'.txt'))
+#			}
+#		}
+#	}
+#}
+
+## Load data and utilities
+dates <- readRDS("../Simu_data/simuls.rds")
+ndates <- 80
+
+## Arrange for sample sizes in OLE
+dates_ss <- c(5,10,ndates/2,ndates)
+
+########### OLE MEDIANS
+
+## Prepare to store results
+OLE_medians <- data.frame("Estimate" = numeric(),
+			  "upperCI" = numeric(),
+			  "lowerCI" = numeric(),
+			  "start_date" = numeric(),
+			  "r" = numeric(),
+			  "sd" = numeric(),
+			  "sampled_dates" = numeric())
+## Measure time
+system.time({
+
+## Subset dates from df
+for (z in 1:10){
+	dates_subset <- dates[(ndates*z-79):(ndates*z),]
+	dates_subset <- dates_subset[order(dates_subset$Year, decreasing = T),] ## Need this for different samples sizes
+
+	############ OLE WITH MEDIANS
+
+	dates_median <- rep(NA,nrow(dates_subset))
+	for (i in 1:nrow(dates_subset)){
+		dates_median[i] <- medCal(calibrate(dates_subset[i,1],dates_subset[i,2]))
+	}
+
+	for (i in 1:length(dates_ss)){
+		dates_median_ss <- dates_median[1:dates_ss[i]]
+		OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
+		OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i])
+	}
+}
+})
+
+
+######### OLE RESAMPLE
+## Ok, so what they do in (Key et al. 2021, Bebber & Key, 2022 or Djakovic et al., 2022) is basically resample from the mean of the radiocarbon date with half standard deviation. They sample 10,000 times and from the results, the just get the mean of the estimated means and CIs. I'll do the last bit (although it is dodgy), but I'm not resampling from the radiocarbon date because this does not take into account the calibration error. I'll sample from the probability distribution of the calibrated date. 
+
+
+## Prepare to store results
+OLE_resamp <- data.frame("Estimate" = numeric(),
+	        	 "upperCI" = numeric(),
+			 "lowerCI" = numeric(),
+			 "start_date" = numeric(),
+			 "r" = numeric(),
+			 "sd" = numeric(),
+			 "sampled_dates" = numeric())
+
+
+rsmp <- 1000 ## Number of resamples
+system.time({
+for (z in 1:40){
+	## Temporal OLE results
+	temp_OLE <- data.frame("Estimate" = numeric(),
+			       "upperCI" = numeric(),
+		       	       "lowerCI" = numeric())
+	
+	dates_subset <- dates[(ndates*z-79):(ndates*z),]
+	
+	# Calibrate dates
+	cal_dates <- calibrate(dates_subset[,1],dates_subset[,2])
+	for (i in 1:rsmp){
+		valid <- F ## I'll use this to check whether the matrix is singluar
+		
+		while(!valid){
+			# Resample
+			resamp_dates <- rep(NA,ndates)
+			for (k in 1:ndates){
+				resamp_dates[k] <- sample(cal_dates$grids[[k]][,1],size = 1,cal_dates$grids[[k]][,2], replace = T)
+			}
+			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
+			
+			for (j in 1:length(dates_ss)){
+				resamp_dates <- resamp_dates[1:dates_ss[j]]
+			
+				## Check that matrix is singlular and produce results only if it is
+				OLE_res <- OLE.test(dd = resamp_dates, alpha = 0.05)
+		
+				if (!any(is.na(OLE_res))){
+					temp_OLE[i,] <- OLE_res
+					valid <- TRUE
+				}
 			}
 		}
 	}
-}
-
-
-## Back-calibrate dates (for OLE)
-cal_dates <- calibrate(dates$Year, dates$Sd)
-
-## Arrange for sample sizes in OLE
-dates_ss <- c(5,10,round(nrow(dates)/2),nrow(dates))
-
-OLE_medians <- list("d5" = NA, # To store results on medians
-		    "d10" = NA,
-		    "half" = NA,
-		    "full" = NA)
-
-OLE_resample <- list("d5" = NA, # To store results on resample
-		     "d10" = NA,
-		     "half" = NA,
-		     "full" = NA)
-## OLE medians
-dates_median <- rep(NA,nrow(dates))
-for (i in 1:nrow(dates)){
-	dates_median[i] <- medCal(calibrate(dates[i,1],dates[i,2]))
-}
-
-## sample dates acccording to sample size
-for (i in 1:length(dates_ss)){
-	dates_median_temp <- sample(dates_median,dates_ss[i])
-	OLE_medians[[i]] <- OLE.test(dd = dates_median_temp, alpha = 0.05)
-}
-
-## OLE resample
-rsmp <- 100 ## Number of resamples
-
-for (j in 1:length(dates_ss)){
-	## Create object to store with given sample size
-	temp_object <- data.frame("Estimate" = rep(NA,rsmp),
-				  "upperCI" = rep(NA,rsmp),
-				  "lowerCI" = rep(NA,rsmp))
-	for (k in 1:rsmp){
-		## Resample dates
-		date_vec <- rep(NA,nrow(dates))
-		for (i in 1:nrow(dates)){
-			date_vec[i] <- sample(cal_dates$grids[[i]][,1],1,cal_dates$grids[[i]][,2], replace = T)
-		}
 	
-		## Subset according to sample sizes
-		sampled_dates <- sample(date_vec,dates_ss[j])
-		temp_object[k,] <- OLE.test(dd = sampled_dates, alpha = 0.05)
-	}
+	OLE_resamp[z,] <- c(apply(temp_OLE,2,mean),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[z])
+}
+})
 
-	OLE_resample[[j]] <- temp_object
+######### Oxcal
+unif_res <- list()
+trap_res <- list()
+
+for (z in 1:1){
+dates_subset <- dates[(ndates*z-79):(ndates*z),]
+
+unif_res[[z]]  <- oxcalRunner(c14age=round(dates_subset$Year),error=dates_subset$Sd,model='uniform')
+trap_res_temp[[z]]  <- oxcalRunner(c14age=round(dates_subset$Year),error=dates_subset$Sd,model='trapezoid')
+
+
 }
 
-## CRIWM
-criwm_res <- criwm("dates_text.txt")
+######### CRIWM
 
-## Oxcal
-quickSetupOxcal() #this should be replaced by actual reference to the file path where oxcal is downloaded (otherwise would install it every time)
-unif.res  <- oxcalRunner(c14age=round(x$Year),error=x$Sd,model='uniform')
-trap.res  <- oxcalRunner(c14age=round(x$Year),error=x$Sd,model='trapezoid')
+## Need this to recover files by name. They match the ones in Simu_dates.R
+sim <- 1
+C14_errors <- c(20,50)
+r <- c(0.01,0.02,0.03,0.04)
+index <- 1
+
+## Prepare to store results
+CRIWM <- data.frame("Estimate" = numeric(),
+	            "upperCI" = numeric(),
+		    "lowerCI" = numeric(),
+		    "sim" = numeric(),
+		    "r" = numeric(),
+		    "sd" = numeric())
+system.time({
+for (i in 1:sim){
+	for (k in 1:length(r)){
+		for (j in 1:length(C14_errors)){
+			creiwm_res_temp <- criwm(paste0("../Simu_data/Uncal_YearsBP_sim_",i,"_r_",r[k],"_error_",C14_errors[j],".txt"))
+			CRIWM[index,] <- c(creiwm_res_temp$criwm[2,2],
+					   creiwm_res_temp$criwm[2,3],
+					   creiwm_res_temp$criwm[2,1],
+					   sim[i],r[k],C14_errors[j])
+			index <- index + 1
+		}
+	}
+}
+})
