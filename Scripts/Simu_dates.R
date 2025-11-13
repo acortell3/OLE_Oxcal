@@ -17,8 +17,7 @@ i_row <- 1 # To update df row index
 simuls <- data.frame("YearsBP" = NA,
 		     "Sd" = NA,
 		     "start_date" = NA,
-		     "r" = NA,
-		     "C14_errors" = NA)
+		     "r" = NA)
 ## Generate dates
 for (i in 1:length(start_date)){
 	for (j in 1:length(r)){
