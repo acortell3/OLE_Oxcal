@@ -13,36 +13,21 @@ OLE.test <- function(dd, alpha){ ## dd is the dates and alpha is the confidence 
   myfun <- function(i,j,v){(gamma(2*v+i)*gamma(v+j))/(gamma(v+i)*gamma(j))}
   lambda <- outer(1:k, 1:k, myfun, v=v)
   lambda <- ifelse(lower.tri(lambda), lambda, t(lambda)) 
-  a <- as.vector(solve(t(e)%*%solve(lambda)%*%e)) * solve(lambda)%*%e
-  # calculation of CI ("upperCI") and extinction time ("extest")
-  upperCI<-max(sights) + ((max(sights)-min(sights))/(SU-1))
-  lowerCI<-min(sights) + ((min(sights)-max(sights))/(SU-1))
-  extest<-sum(t(a)%*%sights)
-  # return of results produced by the function
-  res<-data.frame(Estimate=extest, upperCI=upperCI, lowerCI=lowerCI)
-  return(res)	
-}
-
-## OLE returning v Weibull parameter
-OLE.test.v <- function(dd, alpha){ ## dd is the dates and alpha is the confidence interval
-  # records are sorted in a reverse order, as required by OLE method
-  sights <- rev(sort(dd))
-  # calculation of k, v, e, lambda and other values
-  k <- length(sights)
-  v <- (1/(k-1)) * sum(log((sights[1] - sights[k])/(sights[1] - sights[2:(k-1)])))
-  e <- matrix(rep(1,k), ncol=1)
-  SU<-(-log(alpha)/length(sights))^-v
-  myfun <- function(i,j,v){(gamma(2*v+i)*gamma(v+j))/(gamma(v+i)*gamma(j))}
-  lambda <- outer(1:k, 1:k, myfun, v=v)
-  lambda <- ifelse(lower.tri(lambda), lambda, t(lambda)) 
-  a <- as.vector(solve(t(e)%*%solve(lambda)%*%e)) * solve(lambda)%*%e
-  # calculation of CI ("upperCI") and extinction time ("extest")
-  upperCI<-max(sights) + ((max(sights)-min(sights))/(SU-1))
-  lowerCI<-min(sights) + ((min(sights)-max(sights))/(SU-1))
-  extest<-sum(t(a)%*%sights)
-  # return of results produced by the function
-  res<-data.frame(Estimate=extest, upperCI=upperCI, lowerCI=lowerCI,W.shape = v)
-  return(res)	
+  
+  ## Correction to avoid matrix singularity without stopping the loop
+  if(any(!is.finite(lambda)) || qr(lambda)$rank < ncol(lambda)){
+	  res <- NA
+	  return(res)
+  } else {
+	  a <- as.vector(solve(t(e)%*%solve(lambda)%*%e)) * solve(lambda)%*%e
+  	  # calculation of CI ("upperCI") and extinction time ("extest")
+  	  upperCI<-max(sights) + ((max(sights)-min(sights))/(SU-1))
+  	  lowerCI<-min(sights) + ((min(sights)-max(sights))/(SU-1))
+  	  extest<-sum(t(a)%*%sights)
+  	  # return of results produced by the function
+  	  res<-data.frame(Estimate=extest, upperCI=upperCI, lowerCI=lowerCI)
+  	  return(res)
+  }
 }
 
 ### Functions to fit oxcal
