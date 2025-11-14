@@ -40,7 +40,6 @@ time_OLE_medians <- system.time({
 ## Subset dates from df
 for (z in 1:sims){
 	dates_subset <- dates[(ndates*z-79):(ndates*z),]
-	dates_subset <- dates_subset[order(dates_subset$Year, decreasing = T),] ## Need this for different samples sizes
 
 	############ OLE WITH MEDIANS
 
@@ -49,13 +48,16 @@ for (z in 1:sims){
 		dates_median[i] <- medCal(calibrate(dates_subset[i,1],dates_subset[i,2]))
 	}
 	
-	## If the two first dates are the same, it gives NA. Sneaky way to sort that
-	if (dates_median[1] == dates_median[2]){
-		dates_median[1] <- dates_median[1]+1
-	}
+	dates_median <- dates_median[order(dates_median, decreasing = T)] ## Need this for different samples sizes
 		
 	for (i in 1:length(dates_ss)){
 		dates_median_ss <- dates_median[1:dates_ss[i]]
+		
+		## If the two first dates are the same, it gives NA. Sneaky way to sort that
+		if (dates_median_ss[1] == dates_median_ss[2]){
+			dates_median_ss[1] <- dates_median_ss[1]+1
+		}
+
 		OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
 		OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i])
 	}
@@ -105,13 +107,12 @@ for (z in 1:(sims*4)){
 			}
 			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
 			
-			## If the two first dates are the same, it gives NA. Sneaky way to sort that
-			if (resamp_dates[1] == resamp_dates[2]){
-				resamp_dates[1] <- resamp_dates[1]+1
-			}
-
 			for (j in 1:length(dates_ss)){
 				resamp_dates <- resamp_dates[1:dates_ss[j]]
+				## If the two first dates are the same, it gives NA. Sneaky way to sort that
+				if (resamp_dates[1] == resamp_dates[2]){
+					resamp_dates[1] <- resamp_dates[1]+1
+				}
 			
 				## Check that matrix is singlular and produce results only if it is
 				OLE_res <- OLE.test(dd = resamp_dates, alpha = 0.05)
@@ -170,13 +171,14 @@ for (z in 1:(sims*4)){
 				resamp_dates[k] <- rnorm(1,dat_mean,dat_sd)
 			}
 			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
-			## If the two first dates are the same, it gives NA. Sneaky way to sort that
-			if (resamp_dates[1] == resamp_dates[2]){
-				resamp_dates[1] <- resamp_dates[1]+1
-			}
 			
 			for (j in 1:length(dates_ss)){
 				resamp_dates <- resamp_dates[1:dates_ss[j]]
+				
+				## If the two first dates are the same, it gives NA. Sneaky way to sort that
+				if (resamp_dates[1] == resamp_dates[2]){
+					resamp_dates[1] <- resamp_dates[1]+1
+				}
 			
 				## Check that matrix is singlular and produce results only if it is
 				OLE_res <- OLE.test(dd = resamp_dates, alpha = 0.05)
@@ -233,13 +235,13 @@ for (z in 1:(sims*4)){
 				resamp_dates[k] <- runif(1,min(cal_dates$grids[[k]][,1]),max(cal_dates$grids[[k]][,1]))
 			}
 			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
-			## If the two first dates are the same, it gives NA. Sneaky way to sort that
-			if (resamp_dates[1] == resamp_dates[2]){
-				resamp_dates[1] <- resamp_dates[1]+1
-			}
 			
 			for (j in 1:length(dates_ss)){
 				resamp_dates <- resamp_dates[1:dates_ss[j]]
+				## If the two first dates are the same, it gives NA. Sneaky way to sort that
+				if (resamp_dates[1] == resamp_dates[2]){
+					resamp_dates[1] <- resamp_dates[1]+1
+				}
 			
 				## Check that matrix is singlular and produce results only if it is
 				OLE_res <- OLE.test(dd = resamp_dates, alpha = 0.05)
