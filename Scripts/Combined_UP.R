@@ -48,7 +48,12 @@ for (z in 1:sims){
 	for (i in 1:nrow(dates_subset)){
 		dates_median[i] <- medCal(calibrate(dates_subset[i,1],dates_subset[i,2]))
 	}
-
+	
+	## If the two first dates are the same, it gives NA. Sneaky way to sort that
+	if (dates_median[1] == dates_median[2]){
+		dates_median[1] <- dates_median[1]+1
+	}
+		
 	for (i in 1:length(dates_ss)){
 		dates_median_ss <- dates_median[1:dates_ss[i]]
 		OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
@@ -100,6 +105,11 @@ for (z in 1:(sims*4)){
 			}
 			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
 			
+			## If the two first dates are the same, it gives NA. Sneaky way to sort that
+			if (resamp_dates[1] == resamp_dates[2]){
+				resamp_dates[1] <- resamp_dates[1]+1
+			}
+
 			for (j in 1:length(dates_ss)){
 				resamp_dates <- resamp_dates[1:dates_ss[j]]
 			
@@ -160,6 +170,10 @@ for (z in 1:(sims*4)){
 				resamp_dates[k] <- rnorm(1,dat_mean,dat_sd)
 			}
 			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
+			## If the two first dates are the same, it gives NA. Sneaky way to sort that
+			if (resamp_dates[1] == resamp_dates[2]){
+				resamp_dates[1] <- resamp_dates[1]+1
+			}
 			
 			for (j in 1:length(dates_ss)){
 				resamp_dates <- resamp_dates[1:dates_ss[j]]
@@ -219,6 +233,10 @@ for (z in 1:(sims*4)){
 				resamp_dates[k] <- runif(1,min(cal_dates$grids[[k]][,1]),max(cal_dates$grids[[k]][,1]))
 			}
 			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
+			## If the two first dates are the same, it gives NA. Sneaky way to sort that
+			if (resamp_dates[1] == resamp_dates[2]){
+				resamp_dates[1] <- resamp_dates[1]+1
+			}
 			
 			for (j in 1:length(dates_ss)){
 				resamp_dates <- resamp_dates[1:dates_ss[j]]
