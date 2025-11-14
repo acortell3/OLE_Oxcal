@@ -12,13 +12,14 @@ library(parallel)
 quickSetupOxcal() #this should be replaced by actual reference to the file path where oxcal is downloaded (otherwise would install it every time)
 
 ## Load required functions
-#source('oxcal_functions.R')
 source('functions.R')
 
+set.seed(123)
+
 ## Load data and utilities
-dates <- readRDS("../Simu_data/simuls.rds")
+dates <- readRDS("../Simu_data/simuls_hol.rds")
 ndates <- 80
-sims <- 1
+sims <- 1000
 
 ## Arrange for sample sizes in OLE
 dates_ss <- c(5,10,ndates/2,ndates)
@@ -56,8 +57,8 @@ for (z in 1:sims){
 }
 })
 
-saveRDS(OLE_medians,"../Results/OLE_medians.rds")
-saveRDS(time_OLE_medians,"../Results/time_OLE_medians.rds")
+saveRDS(OLE_medians,"../Results/OLE_medians_hol.rds")
+saveRDS(time_OLE_medians,"../Results/time_OLE_medians_hol.rds")
 
 ## to save space
 rm(OLE_medians)
@@ -117,8 +118,8 @@ for (z in 1:(sims*4)){
 }
 })
 
-saveRDS(OLE_resamp_caldate,"../Results/OLE_resamp_caldate.rds")
-saveRDS(time_OLE_resamp_caldate,"../Results/time_OLE_resamp_caldate.rds")
+saveRDS(OLE_resamp_caldate,"../Results/OLE_resamp_caldate_hol.rds")
+saveRDS(time_OLE_resamp_caldate,"../Results/time_OLE_resamp_caldate_hol.rds")
 
 ## to save space
 rm(OLE_resamp_caldate)
@@ -178,8 +179,8 @@ for (z in 1:(sims*4)){
 }
 })
 
-saveRDS(OLE_resamp_norm,"../Results/OLE_resamp_norm.rds")
-saveRDS(time_OLE_resamp_norm,"../Results/time_OLE_resamp_norm.rds")
+saveRDS(OLE_resamp_norm,"../Results/OLE_resamp_norm_hol.rds")
+saveRDS(time_OLE_resamp_norm,"../Results/time_OLE_resamp_norm_hol.rds")
 
 ## to save space
 rm(OLE_resamp_norm)
@@ -237,8 +238,8 @@ for (z in 1:(sims*4)){
 }
 })
 
-saveRDS(OLE_resamp_uni,"../Results/OLE_resamp_uni.rds")
-saveRDS(time_OLE_resamp_uni,"../Results/time_OLE_resamp_uni.rds")
+saveRDS(OLE_resamp_uni,"../Results/OLE_resamp_uni_hol.rds")
+saveRDS(time_OLE_resamp_uni,"../Results/time_OLE_resamp_uni_hol.rds")
 
 ## to save space
 rm(OLE_resamp_uni)
@@ -258,8 +259,8 @@ oxcal_res <- mclapply(1:sims, function(z) {
 			       }, mc.cores = ncores)
 })
 
-saveRDS(oxcal_res,"../Results/oxcal.rds")
-saveRDS(time_oxcal,"../Results/time_oxcal.rds")
+saveRDS(oxcal_res,"../Results/oxcal_hol.rds")
+saveRDS(time_oxcal,"../Results/time_oxcal_hol.rds")
 
 ## to save space
 rm(oxcal_res)
@@ -282,7 +283,7 @@ time_criwm <- system.time({
     row <- comb[idx, ]
 
     # Build file name
-    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_",row$sim, "_r_",row$r,"_error_",row$sd,".txt")
+    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_hol_",row$sim, "_r_",row$r,"_error_",row$sd,".txt")
 
     # Run criwm
     res <- criwm(filepath)
@@ -295,8 +296,8 @@ time_criwm <- system.time({
 # Single data frame
 CRIWM <- do.call(rbind, criwm_res)
 
-saveRDS(CRIWM,"../Results/CRIWM.rds")
-saveRDS(time_criwm,"../Results/time_criwm.rds")
+saveRDS(CRIWM,"../Results/CRIWM_hol.rds")
+saveRDS(time_criwm,"../Results/time_criwm_hol.rds")
 
 ## to save space
 rm(CRIWM)
