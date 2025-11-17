@@ -19,7 +19,9 @@ set.seed(123)
 ## Load data and utilities
 dates <- readRDS("../Simu_data/simuls_hol.rds")
 ndates <- 80
-sims <- 1000
+sims <- nrow(dates)/ndates
+C14_errors <- c(20,50)
+r_vals <- c(0.01,0.02,0.03,0.04)
 
 ## Arrange for sample sizes in OLE
 dates_ss <- c(5,10,ndates/2,ndates)
@@ -32,13 +34,13 @@ OLE_medians <- data.frame("Estimate" = numeric(),
 			  "lowerCI" = numeric(),
 			  "start_date" = numeric(),
 			  "r" = numeric(),
-			  "sd" = numeric(),
+			  "Sd" = numeric(),
 			  "sampled_dates" = numeric())
 ## Measure time
 time_OLE_medians <- system.time({
 
 ## Subset dates from df
-for (z in 1:sims){
+for (z in 1:100){
 	dates_subset <- dates[(ndates*z-79):(ndates*z),]
 
 	############ OLE WITH MEDIANS
@@ -57,9 +59,12 @@ for (z in 1:sims){
 		if (dates_median_ss[1] == dates_median_ss[2]){
 			dates_median_ss[1] <- dates_median_ss[1]+1
 		}
-
-		OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
-		OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i])
+		for (j in 1:length(r_vals)){
+			     for (k in 1:length(C14_errors)){
+					  OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
+			     }
+		}
+					  OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i])
 	}
 }
 })
@@ -81,12 +86,11 @@ OLE_resamp_caldate <- data.frame("Estimate" = numeric(),
 			 	 "lowerCI" = numeric(),
 			 	 "start_date" = numeric(),
 			 	 "r" = numeric(),
-			 	 "sd" = numeric(),
+			 	 "Sd" = numeric(),
 			 	 "sampled_dates" = numeric())
 
-
 time_OLE_resamp_caldate <- system.time({
-for (z in 1:(sims*4)){
+for (z in 1:(sims)){
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -96,36 +100,35 @@ for (z in 1:(sims*4)){
 	
 	# Calibrate dates
 	cal_dates <- calibrate(dates_subset[,1],dates_subset[,2])
-	for (i in 1:rsmp){
-		valid <- F ## I'll use this to check whether the matrix is singluar
-		
-		while(!valid){
-			# Resample
-			resamp_dates <- rep(NA,ndates)
-			for (k in 1:ndates){
-				resamp_dates[k] <- sample(cal_dates$grids[[k]][,1],size = 1,cal_dates$grids[[k]][,2], replace = T)
-			}
-			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
-			
-			for (j in 1:length(dates_ss)){
-				resamp_dates <- resamp_dates[1:dates_ss[j]]
-				## If the two first dates are the same, it gives NA. Sneaky way to sort that
-				if (resamp_dates[1] == resamp_dates[2]){
-					resamp_dates[1] <- resamp_dates[1]+1
+	for (j in 1:length(dates_ss)){
+		for (i in 1:rsmp){
+			temp_df <- data.frame() ## I'll need this
+			valid <- F ## I'll use this to check whether the matrix is singluar
+				
+			while(!valid){
+				# Resample
+				resamp_dates <- rep(NA,ndates)
+				for (k in 1:ndates){
+					resamp_dates[k] <- sample(cal_dates$grids[[k]][,1],size = 1,cal_dates$grids[[k]][,2], replace = T)
 				}
-			
+				resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
+				resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
+				
+				## If the two first dates are the same, it gives NA. Sneaky way to sort that
+				if (resamp_dates_temp[1] == resamp_dates_temp[2]){
+					resamp_dates_temp[1] <- resamp_dates_temp[1]+1
+				}
+				
 				## Check that matrix is singlular and produce results only if it is
-				OLE_res <- OLE.test(dd = resamp_dates, alpha = 0.05)
-		
+				OLE_res <- OLE.test(dd = resamp_dates_temp, alpha = 0.05)
 				if (!any(is.na(OLE_res))){
 					temp_OLE[i,] <- OLE_res
 					valid <- TRUE
 				}
 			}
 		}
+		OLE_resamp_caldate[nrow(OLE_resamp_caldate)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
 	}
-	
-	OLE_resamp_caldate[z,] <- c(apply(temp_OLE,2,mean),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[z])
 }
 })
 
@@ -140,15 +143,15 @@ rm(time_OLE_resamp_caldate)
 
 ## Prepare to store results
 OLE_resamp_norm <- data.frame("Estimate" = numeric(),
-	                      "upperCI" = numeric(),
+			      "upperCI" = numeric(),
 			      "lowerCI" = numeric(),
 			      "start_date" = numeric(),
 			      "r" = numeric(),
-			      "sd" = numeric(),
+			      "Sd" = numeric(),
 			      "sampled_dates" = numeric())
 
 time_OLE_resamp_norm <- system.time({
-for (z in 1:(sims*4)){
+for (z in 1:(sims)){
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -158,40 +161,37 @@ for (z in 1:(sims*4)){
 	
 	# Calibrate dates
 	cal_dates <- calibrate(dates_subset[,1],dates_subset[,2])
-	
-	for (i in 1:rsmp){
-		valid <- F ## I'll use this to check whether the matrix is singluar
-		
-		while(!valid){
-			# Resample
-			resamp_dates <- rep(NA,ndates)
-			for (k in 1:ndates){
-				dat_mean <- mean(cal_dates$grids[[k]][,1])
-				dat_sd <- (max(cal_dates$grids[[k]][,1])-dat_mean)/2
-				resamp_dates[k] <- rnorm(1,dat_mean,dat_sd)
-			}
-			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
-			
-			for (j in 1:length(dates_ss)){
-				resamp_dates <- resamp_dates[1:dates_ss[j]]
+	for (j in 1:length(dates_ss)){
+		for (i in 1:rsmp){
+			temp_df <- data.frame() ## I'll need this
+			valid <- F ## I'll use this to check whether the matrix is singluar
+				
+			while(!valid){
+				# Resample
+				resamp_dates <- rep(NA,ndates)
+				for (k in 1:ndates){
+					dat_mean <- mean(cal_dates$grids[[k]][,1])
+					dat_sd <- (max(cal_dates$grids[[k]][,1])-dat_mean)/2
+					resamp_dates[k] <- rnorm(1,dat_mean,dat_sd)
+				}
+				resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
+				resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
 				
 				## If the two first dates are the same, it gives NA. Sneaky way to sort that
-				if (resamp_dates[1] == resamp_dates[2]){
-					resamp_dates[1] <- resamp_dates[1]+1
+				if (resamp_dates_temp[1] == resamp_dates_temp[2]){
+					resamp_dates_temp[1] <- resamp_dates_temp[1]+1
 				}
-			
+				
 				## Check that matrix is singlular and produce results only if it is
-				OLE_res <- OLE.test(dd = resamp_dates, alpha = 0.05)
-		
+				OLE_res <- OLE.test(dd = resamp_dates_temp, alpha = 0.05)
 				if (!any(is.na(OLE_res))){
 					temp_OLE[i,] <- OLE_res
 					valid <- TRUE
 				}
 			}
 		}
+		OLE_resamp_norm[nrow(OLE_resamp_norm)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
 	}
-	
-	OLE_resamp_norm[z,] <- c(apply(temp_OLE,2,mean),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[z])
 }
 })
 
@@ -205,16 +205,16 @@ rm(time_OLE_resamp_norm)
 ######### OLE RESAMPLE UNI DIST (as in Djakovic et al. 2022)
 
 ## Prepare to store results
-OLE_resamp_uni <- data.frame("Estimate" = numeric(),
-	                     "upperCI" = numeric(),
-			     "lowerCI" = numeric(),
-			     "start_date" = numeric(),
-			     "r" = numeric(),
-			     "sd" = numeric(),
-			     "sampled_dates" = numeric())
+OLE_resamp_unif <- data.frame("Estimate" = numeric(),
+			      "upperCI" = numeric(),
+			      "lowerCI" = numeric(),
+			      "start_date" = numeric(),
+			      "r" = numeric(),
+			      "Sd" = numeric(),
+			      "sampled_dates" = numeric())
 
-time_OLE_resamp_uni <- system.time({
-for (z in 1:(sims*4)){
+time_OLE_resamp_unif <- system.time({
+for (z in 1:(sims)){
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -224,78 +224,104 @@ for (z in 1:(sims*4)){
 	
 	# Calibrate dates
 	cal_dates <- calibrate(dates_subset[,1],dates_subset[,2])
-	
-	for (i in 1:rsmp){
-		valid <- F ## I'll use this to check whether the matrix is singluar
-		
-		while(!valid){
-			# Resample
-			resamp_dates <- rep(NA,ndates)
-			for (k in 1:ndates){
-				resamp_dates[k] <- runif(1,min(cal_dates$grids[[k]][,1]),max(cal_dates$grids[[k]][,1]))
-			}
-			resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
-			
-			for (j in 1:length(dates_ss)){
-				resamp_dates <- resamp_dates[1:dates_ss[j]]
-				## If the two first dates are the same, it gives NA. Sneaky way to sort that
-				if (resamp_dates[1] == resamp_dates[2]){
-					resamp_dates[1] <- resamp_dates[1]+1
+	for (j in 1:length(dates_ss)){
+		for (i in 1:rsmp){
+			temp_df <- data.frame() ## I'll need this
+			valid <- F ## I'll use this to check whether the matrix is singluar
+				
+			while(!valid){
+				# Resample
+				resamp_dates <- rep(NA,ndates)
+				for (k in 1:ndates){
+					resamp_dates[k] <- runif(1,min(cal_dates$grids[[k]][,1]),max(cal_dates$grids[[k]][,1]))
 				}
-			
+				resamp_dates <- resamp_dates[order(resamp_dates, decreasing = T)]
+				resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
+				
+				## If the two first dates are the same, it gives NA. Sneaky way to sort that
+				if (resamp_dates_temp[1] == resamp_dates_temp[2]){
+					resamp_dates_temp[1] <- resamp_dates_temp[1]+1
+				}
+				
 				## Check that matrix is singlular and produce results only if it is
-				OLE_res <- OLE.test(dd = resamp_dates, alpha = 0.05)
-		
+				OLE_res <- OLE.test(dd = resamp_dates_temp, alpha = 0.05)
 				if (!any(is.na(OLE_res))){
 					temp_OLE[i,] <- OLE_res
 					valid <- TRUE
 				}
 			}
 		}
+		OLE_resamp_unif[nrow(OLE_resamp_unif)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
 	}
-	
-	OLE_resamp_uni[z,] <- c(apply(temp_OLE,2,mean),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[z])
 }
 })
 
-saveRDS(OLE_resamp_uni,"../Results/OLE_resamp_uni_hol.rds")
-saveRDS(time_OLE_resamp_uni,"../Results/time_OLE_resamp_uni_hol.rds")
+saveRDS(OLE_resamp_unif,"../Results/OLE_resamp_unif_hol.rds")
+saveRDS(time_OLE_resamp_unif,"../Results/time_OLE_resamp_unif_hol.rds")
 
 ## to save space
-rm(OLE_resamp_uni)
-rm(time_OLE_resamp_uni)
+rm(OLE_resamp_unif)
+rm(time_OLE_resamp_unif)
 
 ######### Oxcal
 
 # Cores
 ncores <- 10
 
-time_oxcal <- system.time({
-oxcal_res <- mclapply(1:sims, function(z) {
-			      dates_subset <- dates[(ndates*z-79):(ndates*z), ]
-			      list(unif  = oxcalRunner(c14age = round(dates_subset$Year),error  = dates_subset$Sd,model  = "uniform"),
-				   trap  = oxcalRunner(c14age = round(dates_subset$Year),error  = dates_subset$Sd,model  = "trapezoid")
-			      )
-			       }, mc.cores = ncores)
+## Oxcal uniform
+time_oxcal_unif <- system.time({
+  oxcal_unif <- mclapply(
+    1:sims,
+    function(z) {
+      dates_subset <- dates[(ndates*z - 79):(ndates*z), ]
+      oxcalRunner(
+        c14age = round(dates_subset$Year),
+        error  = dates_subset$Sd,
+        model  = "uniform"
+      )
+    },
+    mc.cores = ncores
+  )
 })
 
-saveRDS(oxcal_res,"../Results/oxcal_hol.rds")
-saveRDS(time_oxcal,"../Results/time_oxcal_hol.rds")
+saveRDS(oxcal_unif,"../Results/oxcal_unif_hol.rds")
+saveRDS(time_oxcal_unif,"../Results/time_oxcal_unif_hol.rds")
 
 ## to save space
-rm(oxcal_res)
-rm(time_oxcal)
+rm(oxcal_unif)
+rm(time_oxcal_unif)
+
+## Oxcal trapezoid
+
+time_oxcal_trap <- system.time({
+  oxcal_trap <- mclapply(
+    1:sims,
+    function(z) {
+      dates_subset <- dates[(ndates*z - 79):(ndates*z), ]
+      oxcalRunner(
+        c14age = round(dates_subset$Year),
+        error  = dates_subset$Sd,
+        model  = "trapezoid"
+      )
+    },
+    mc.cores = ncores
+  )
+})
+
+saveRDS(oxcal_trap,"../Results/oxcal_trap_hol.rds")
+saveRDS(time_oxcal_trap,"../Results/time_oxcal_trap_hol.rds")
+
+## to save space
+rm(oxcal_trap)
+rm(time_oxcal_trap)
+
 
 ######### CRIWM
 
-sim <- sims
-C14_errors <- c(20,50)
-r_vals <- c(0.01,0.02,0.03,0.04)
+sim <- 1000
 
 # Combinations of (i, r, sd)
 comb <- expand.grid(sim = 1:sim,r = r_vals,sd = C14_errors)
-
-ncores <- 10
 
 time_criwm <- system.time({
 
