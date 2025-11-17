@@ -41,7 +41,7 @@ OLE_medians <- data.frame("Estimate" = numeric(),
 time_OLE_medians <- system.time({
 
 ## Subset dates from df
-for (z in 1:100){
+for (z in 1:sims){
 	dates_subset <- dates[(ndates*z-79):(ndates*z),]
 
 	############ OLE WITH MEDIANS
@@ -91,7 +91,7 @@ OLE_resamp_caldate <- data.frame("Estimate" = numeric(),
 			 	 "sampled_dates" = numeric())
 
 time_OLE_resamp_caldate <- system.time({
-for (z in 1:(sims)){
+for (z in 1:sims){
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -152,7 +152,7 @@ OLE_resamp_norm <- data.frame("Estimate" = numeric(),
 			      "sampled_dates" = numeric())
 
 time_OLE_resamp_norm <- system.time({
-for (z in 1:(sims)){
+for (z in 1:sims){
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -216,7 +216,7 @@ OLE_resamp_unif <- data.frame("Estimate" = numeric(),
 			      "sampled_dates" = numeric())
 
 time_OLE_resamp_unif <- system.time({
-for (z in 1:(sims)){
+for (z in 1:sims){
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
