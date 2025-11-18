@@ -371,9 +371,12 @@ rm(time_criwm)
 ########### UPPER PALAEOLITHIC DATES
 #################################################
 
+## Load data and utilities
+dates <- readRDS("../Simu_data/simuls_up.rds")
+
 ## Utilities picked up from the beginning of the script
 
-########### OLE MEDIANS
+#a########## OLE MEDIANS
 
 ## Prepare to store results
 OLE_medians <- data.frame("Estimate" = numeric(),
