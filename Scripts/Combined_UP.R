@@ -57,8 +57,12 @@ for (z in 1:sims){
 		dates_median_ss <- dates_median[1:dates_ss[i]]
 		
 		## If the two first dates are the same, it gives NA. Sneaky way to sort that
-		if (dates_median_ss[1] == dates_median_ss[2]){
-			dates_median_ss[1] <- dates_median_ss[1]+1
+		for (b in 2:length(dates_median_ss)){
+			if (dates_median_ss[b-1] == dates_median_ss[b]){
+				# Substitution value
+				subs <- round(runif(1,dates_median_ss[b-1]-10,dates_median_ss[b-1]+10))
+				dates_median_ss[b-1] <- subs
+			}
 		}
 		for (j in 1:length(r_vals)){
 			     for (k in 1:length(C14_errors)){
@@ -116,10 +120,14 @@ for (z in 1:sims){
 				resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
 				
 				## If the two first dates are the same, it gives NA. Sneaky way to sort that
-				if (resamp_dates_temp[1] == resamp_dates_temp[2]){
-					resamp_dates_temp[1] <- resamp_dates_temp[1]+1
-				}
 				
+				for (b in 2:length(resamp_dates_temp)){
+					if (resamp_dates_temp[b-1] == resamp_dates_temp[b]){
+						# Substitution value
+						subs <- round(runif(1,resamp_dates_temp[b-1]-10,resamp_dates_temp[b-1]+10))
+						resamp_dates_temp[b-1] <- subs
+					}
+				}
 				## Check that matrix is singlular and produce results only if it is
 				OLE_res <- OLE.test(dd = resamp_dates_temp, alpha = 0.05)
 				if (!any(is.na(OLE_res))){
@@ -179,10 +187,14 @@ for (z in 1:sims){
 				resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
 				
 				## If the two first dates are the same, it gives NA. Sneaky way to sort that
-				if (resamp_dates_temp[1] == resamp_dates_temp[2]){
-					resamp_dates_temp[1] <- resamp_dates_temp[1]+1
-				}
 				
+				for (b in 2:length(resamp_dates_temp)){
+					if (resamp_dates_temp[b-1] == resamp_dates_temp[b]){
+						# Substitution value
+						subs <- round(runif(1,resamp_dates_temp[b-1]-10,resamp_dates_temp[b-1]+10))
+						resamp_dates_temp[b-1] <- subs
+					}
+				}
 				## Check that matrix is singlular and produce results only if it is
 				OLE_res <- OLE.test(dd = resamp_dates_temp, alpha = 0.05)
 				if (!any(is.na(OLE_res))){
@@ -241,10 +253,14 @@ for (z in 1:sims){
 				resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
 				
 				## If the two first dates are the same, it gives NA. Sneaky way to sort that
-				if (resamp_dates_temp[1] == resamp_dates_temp[2]){
-					resamp_dates_temp[1] <- resamp_dates_temp[1]+1
-				}
 				
+				for (b in 2:length(resamp_dates_temp)){
+					if (resamp_dates_temp[b-1] == resamp_dates_temp[b]){
+						# Substitution value
+						subs <- round(runif(1,resamp_dates_temp[b-1]-10,resamp_dates_temp[b-1]+10))
+						resamp_dates_temp[b-1] <- subs
+					}
+				}
 				## Check that matrix is singlular and produce results only if it is
 				OLE_res <- OLE.test(dd = resamp_dates_temp, alpha = 0.05)
 				if (!any(is.na(OLE_res))){
