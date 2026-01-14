@@ -93,6 +93,11 @@ oxcalRunner <- function(c14age,errors,fn=tempfile(fileext='oxcal'),model=c("unif
 	modelscript <- readLines(fn)
 
 	### Run OxCal ----
+	na.check <- TRUE #OxCal for some reason does occasionaly yield '...' in the posterior range. This happens randomly, so the whle loop forces a re-run of the script to avoid reporting NA.
+	na.rerun <- -1 #this counts how many times the while loop was used to rerun. If na.rerun is 0, it means that there were no issues.
+	while(na.check)
+	{
+	na.rerun <- na.rerun + 1
 	fit <- executeOxcalScript(modelscript) # executes the oxcal script, loc is where the output is stored
 	oxcaloutput <- readLines(fit) #read output
 
@@ -147,6 +152,8 @@ oxcalRunner <- function(c14age,errors,fn=tempfile(fileext='oxcal'),model=c("unif
 	post.df[,1] <- BCADtoBP(post.df[,1])
 	post.df[,2] <- BCADtoBP(post.df[,2])
 	colnames(post.df)  <- c('Start','End','P')
-	return(list(overallAgreement=ovAg,individualAgreement=res,posteriorRange=post.df))
+	if (all(!is.na(post.df$Start))&all(!is.na(post.df$End))){na.check <- FALSE} #NA check
+	}
+	return(list(na.rerun=na.rerun,overallAgreement=ovAg,individualAgreement=res,posteriorRange=post.df))
 }
 
