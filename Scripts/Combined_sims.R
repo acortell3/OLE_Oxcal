@@ -21,14 +21,14 @@ quickSetupOxcal() #this should be replaced by actual reference to the file path 
 ## Load required functions
 source('functions.R')
 
-set.seed(123)
+#set.seed(123)
 
 ## Load data and utilities
 dates <- readRDS("../Simu_data/simuls_hol.rds")
 ndates <- 80
 sims <- nrow(dates)/ndates
 C14_errors <- c(20,50)
-r_vals <- c(0.01,0.02,0.03,0.04)
+r_vals <- c(0.01,0.02,0.06)
 
 # Cores for later sims
 ncores <- 15
@@ -45,13 +45,15 @@ OLE_medians <- data.frame("Estimate" = numeric(),
 			  "start_date" = numeric(),
 			  "r" = numeric(),
 			  "Sd" = numeric(),
-			  "sampled_dates" = numeric())
+			  "ESS" = numeric(),
+			  "simID_seed" = numeric())
 
 ## Measure time
 time_OLE_medians <- system.time({
 
 ## Subset dates from df
 for (z in 1:sims){
+	set.seed(z)
 	dates_subset <- dates[(ndates*z-79):(ndates*z),]
 
 	############ OLE WITH MEDIANS
@@ -78,7 +80,7 @@ for (z in 1:sims){
 					  OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
 			     }
 		}
-					  OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i])
+					  OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i],z)
 	}
 }
 })
@@ -101,10 +103,12 @@ OLE_resamp_caldate <- data.frame("Estimate" = numeric(),
 			 	 "start_date" = numeric(),
 			 	 "r" = numeric(),
 			 	 "Sd" = numeric(),
-			 	 "sampled_dates" = numeric())
+			 	 "ESS" = numeric(),
+				 "simID_seed" = numeric())
 
 time_OLE_resamp_caldate <- system.time({
 for (z in 1:sims){
+	set.seed(z)
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -143,7 +147,7 @@ for (z in 1:sims){
 				}
 			}
 		}
-		OLE_resamp_caldate[nrow(OLE_resamp_caldate)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
+		OLE_resamp_caldate[nrow(OLE_resamp_caldate)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j],z)
 	}
 }
 })
@@ -164,10 +168,12 @@ OLE_resamp_norm <- data.frame("Estimate" = numeric(),
 			      "start_date" = numeric(),
 			      "r" = numeric(),
 			      "Sd" = numeric(),
-			      "sampled_dates" = numeric())
+			      "ESS" = numeric(),
+			      "simID_seed" = numeric())
 
 time_OLE_resamp_norm <- system.time({
 for (z in 1:sims){
+	set.seed(z)
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -208,7 +214,7 @@ for (z in 1:sims){
 				}
 			}
 		}
-		OLE_resamp_norm[nrow(OLE_resamp_norm)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
+		OLE_resamp_norm[nrow(OLE_resamp_norm)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j],z)
 	}
 }
 })
@@ -229,10 +235,12 @@ OLE_resamp_unif <- data.frame("Estimate" = numeric(),
 			      "start_date" = numeric(),
 			      "r" = numeric(),
 			      "Sd" = numeric(),
-			      "sampled_dates" = numeric())
+			      "ESS" = numeric(),
+			      "simID_seed" = numeric())
 
 time_OLE_resamp_unif <- system.time({
 for (z in 1:sims){
+	set.seed(z)
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -271,7 +279,7 @@ for (z in 1:sims){
 				}
 			}
 		}
-		OLE_resamp_unif[nrow(OLE_resamp_unif)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
+		OLE_resamp_unif[nrow(OLE_resamp_unif)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j],z)
 	}
 }
 })
@@ -338,22 +346,23 @@ rm(time_oxcal_trap)
 sim <- 1000
 
 # Combinations of (i, r, sd)
-comb <- expand.grid(sim = 1:sim,r = r_vals,sd = C14_errors)
+comb <- expand.grid(sim = 1:sim,r = r_vals,Sd = C14_errors)
 
 time_criwm <- system.time({
 
   criwm_res <- mclapply(1:nrow(comb), function(idx) {
+    set.seed(idx)
     row <- comb[idx, ]
 
     # Build file name
-    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_hol_",row$sim, "_r_",row$r,"_error_",row$sd,".txt")
+    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_hol_",row$sim, "_r_",row$r,"_error_",row$Sd,".txt")
 
     # Run criwm
     res <- criwm(filepath, signor_lipps="arr")
 
     # Extract values
-    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],sim = row$sim,r = row$r,sd = row$sd)
-  }, mc.cores = ncores)
+    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = row$r,Sd = row$Sd,ESS = 80,simID_seed = idx)
+  }, mc.cores = ncore)
 })
 
 # Single data frame
@@ -372,11 +381,11 @@ rm(time_criwm)
 #################################################
 
 ## Load data and utilities
-dates <- readRDS("../Simu_data/simuls_up.rds")
+dates <- readRDS("../Simu_data/simuls_upl.rds")
 
 ## Utilities picked up from the beginning of the script
 
-#a########## OLE MEDIANS
+########### OLE MEDIANS
 
 ## Prepare to store results
 OLE_medians <- data.frame("Estimate" = numeric(),
@@ -385,13 +394,15 @@ OLE_medians <- data.frame("Estimate" = numeric(),
 			  "start_date" = numeric(),
 			  "r" = numeric(),
 			  "Sd" = numeric(),
-			  "sampled_dates" = numeric())
+			  "ESS" = numeric(),
+			  "simID_seed" = numeric())
 
 ## Measure time
 time_OLE_medians <- system.time({
 
 ## Subset dates from df
 for (z in 1:sims){
+	set.seed(z)
 	dates_subset <- dates[(ndates*z-79):(ndates*z),]
 
 	############ OLE WITH MEDIANS
@@ -418,13 +429,13 @@ for (z in 1:sims){
 					  OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
 			     }
 		}
-					  OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i])
+					  OLE_medians[nrow(OLE_medians)+1,] <- c(OLE_med_res,dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[i],z)
 	}
 }
 })
 
-saveRDS(OLE_medians,"../Results/OLE_medians_up.rds")
-saveRDS(time_OLE_medians,"../Results/time_OLE_medians_up.rds")
+saveRDS(OLE_medians,"../Results/OLE_medians_upl.rds")
+saveRDS(time_OLE_medians,"../Results/time_OLE_medians_upl.rds")
 
 ## to save space
 rm(OLE_medians)
@@ -441,10 +452,12 @@ OLE_resamp_caldate <- data.frame("Estimate" = numeric(),
 			 	 "start_date" = numeric(),
 			 	 "r" = numeric(),
 			 	 "Sd" = numeric(),
-			 	 "sampled_dates" = numeric())
+			 	 "ESS" = numeric(),
+				 "simID_seed" = numeric())
 
 time_OLE_resamp_caldate <- system.time({
 for (z in 1:sims){
+	set.seed(z)
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -483,13 +496,13 @@ for (z in 1:sims){
 				}
 			}
 		}
-		OLE_resamp_caldate[nrow(OLE_resamp_caldate)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
+		OLE_resamp_caldate[nrow(OLE_resamp_caldate)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j],z)
 	}
 }
 })
 
-saveRDS(OLE_resamp_caldate,"../Results/OLE_resamp_caldate_up.rds")
-saveRDS(time_OLE_resamp_caldate,"../Results/time_OLE_resamp_caldate_up.rds")
+saveRDS(OLE_resamp_caldate,"../Results/OLE_resamp_caldate_upl.rds")
+saveRDS(time_OLE_resamp_caldate,"../Results/time_OLE_resamp_caldate_upl.rds")
 
 ## to save space
 rm(OLE_resamp_caldate)
@@ -504,10 +517,12 @@ OLE_resamp_norm <- data.frame("Estimate" = numeric(),
 			      "start_date" = numeric(),
 			      "r" = numeric(),
 			      "Sd" = numeric(),
-			      "sampled_dates" = numeric())
+			      "ESS" = numeric(),
+			      "simID_seed" = numeric())
 
 time_OLE_resamp_norm <- system.time({
 for (z in 1:sims){
+	set.seed(z)
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -548,13 +563,13 @@ for (z in 1:sims){
 				}
 			}
 		}
-		OLE_resamp_norm[nrow(OLE_resamp_norm)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
+		OLE_resamp_norm[nrow(OLE_resamp_norm)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j],z)
 	}
 }
 })
 
-saveRDS(OLE_resamp_norm,"../Results/OLE_resamp_norm_up.rds")
-saveRDS(time_OLE_resamp_norm,"../Results/time_OLE_resamp_norm_up.rds")
+saveRDS(OLE_resamp_norm,"../Results/OLE_resamp_norm_upl.rds")
+saveRDS(time_OLE_resamp_norm,"../Results/time_OLE_resamp_norm_upl.rds")
 
 ## to save space
 rm(OLE_resamp_norm)
@@ -569,10 +584,12 @@ OLE_resamp_unif <- data.frame("Estimate" = numeric(),
 			      "start_date" = numeric(),
 			      "r" = numeric(),
 			      "Sd" = numeric(),
-			      "sampled_dates" = numeric())
+			      "ESS" = numeric(),
+			      "simID_seed" = numeric())
 
 time_OLE_resamp_unif <- system.time({
 for (z in 1:sims){
+	set.seed(z)
 	## Temporal OLE results
 	temp_OLE <- data.frame("Estimate" = numeric(),
 			       "upperCI" = numeric(),
@@ -611,13 +628,13 @@ for (z in 1:sims){
 				}
 			}
 		}
-		OLE_resamp_unif[nrow(OLE_resamp_unif)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j])
+		OLE_resamp_unif[nrow(OLE_resamp_unif)+1,] <- c(colMeans(temp_OLE),dates_subset$start_date[1],dates_subset$r[1],dates_subset$Sd[1],dates_ss[j],z)
 	}
 }
 })
 
-saveRDS(OLE_resamp_unif,"../Results/OLE_resamp_unif_up.rds")
-saveRDS(time_OLE_resamp_unif,"../Results/time_OLE_resamp_unif_up.rds")
+saveRDS(OLE_resamp_unif,"../Results/OLE_resamp_unif_upl.rds")
+saveRDS(time_OLE_resamp_unif,"../Results/time_OLE_resamp_unif_upl.rds")
 
 ## to save space
 rm(OLE_resamp_unif)
@@ -641,8 +658,8 @@ time_oxcal_unif <- system.time({
   )
 })
 
-saveRDS(oxcal_unif,"../Results/oxcal_unif_up.rds")
-saveRDS(time_oxcal_unif,"../Results/time_oxcal_unif_up.rds")
+saveRDS(oxcal_unif,"../Results/oxcal_unif_upl.rds")
+saveRDS(time_oxcal_unif,"../Results/time_oxcal_unif_upl.rds")
 
 ## to save space
 rm(oxcal_unif)
@@ -665,8 +682,8 @@ time_oxcal_trap <- system.time({
   )
 })
 
-saveRDS(oxcal_trap,"../Results/oxcal_trap_up.rds")
-saveRDS(time_oxcal_trap,"../Results/time_oxcal_trap_up.rds")
+saveRDS(oxcal_trap,"../Results/oxcal_trap_upl.rds")
+saveRDS(time_oxcal_trap,"../Results/time_oxcal_trap_upl.rds")
 
 ## to save space
 rm(oxcal_trap)
@@ -678,29 +695,30 @@ rm(time_oxcal_trap)
 sim <- 1000
 
 # Combinations of (i, r, sd)
-comb <- expand.grid(sim = 1:sim,r = r_vals,sd = C14_errors)
+comb <- expand.grid(sim = 1:sim,r = r_vals,Sd = C14_errors)
 
 time_criwm <- system.time({
 
   criwm_res <- mclapply(1:nrow(comb), function(idx) {
+    set.seed(idx)
     row <- comb[idx, ]
 
     # Build file name
-    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_up_",row$sim, "_r_",row$r,"_error_",row$sd,".txt")
+    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_upl_",row$sim, "_r_",row$r,"_error_",row$Sd,".txt")
 
     # Run criwm
     res <- criwm(filepath, signor_lipps="arr")
 
     # Extract values
-    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],sim = row$sim,r = row$r,sd = row$sd)
-  }, mc.cores = ncores)
+    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = row$r,Sd = row$Sd,ESS = 80,simID_seed = idx)
+  }, mc.cores = ncore)
 })
 
 # Single data frame
 CRIWM <- do.call(rbind, criwm_res)
 
-saveRDS(CRIWM,"../Results/CRIWM_up.rds")
-saveRDS(time_criwm,"../Results/time_criwm_up.rds")
+saveRDS(CRIWM,"../Results/CRIWM_upl.rds")
+saveRDS(time_criwm,"../Results/time_criwm_upl.rds")
 
 ## to save space
 rm(CRIWM)
