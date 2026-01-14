@@ -8,9 +8,9 @@ library(rcarbon)
 
 ## Set pars for different simulations
 C14_errors <- c(20,50)
-r <- c(0.01,0.02,0.03,0.04)
+r <- c(0.01,0.03,0.06)
 
-########## Younger dates HOLOCENE
+#a######### Younger dates HOLOCENE
 start_date <- sample(1000:11000, 1000, replace = F)
 ndates <- 80
 i_row <- 1 # To update df row index
