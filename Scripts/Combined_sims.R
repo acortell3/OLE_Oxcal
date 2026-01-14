@@ -349,7 +349,7 @@ time_criwm <- system.time({
     filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_hol_",row$sim, "_r_",row$r,"_error_",row$sd,".txt")
 
     # Run criwm
-    res <- criwm(filepath)
+    res <- criwm(filepath, signor_lipps="arr")
 
     # Extract values
     data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],sim = row$sim,r = row$r,sd = row$sd)
@@ -689,7 +689,7 @@ time_criwm <- system.time({
     filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_up_",row$sim, "_r_",row$r,"_error_",row$sd,".txt")
 
     # Run criwm
-    res <- criwm(filepath)
+    res <- criwm(filepath, signor_lipps="arr")
 
     # Extract values
     data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],sim = row$sim,r = row$r,sd = row$sd)
