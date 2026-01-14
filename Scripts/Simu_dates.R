@@ -10,7 +10,7 @@ library(rcarbon)
 C14_errors <- c(20,50)
 r <- c(0.01,0.03,0.06)
 
-#a######### Younger dates HOLOCENE
+########## Younger dates HOLOCENE
 start_date <- sample(1000:11000, 1000, replace = F)
 ndates <- 80
 i_row <- 1 # To update df row index
@@ -58,11 +58,11 @@ for (i in 1:length(start_date)){
 			simuls[c(i_row:(i_row+ndates-1)),] <- c(YearsBP[1],YearsBP[2],as.data.frame(rep(start_date[i],ndates)),as.data.frame(rep(r[j],ndates)))
 			i_row <- 1+nrow(simuls) ## Update the row to store the information
     			# Need to save it like this for CWIRM
-			write.table(YearsBP,file = paste0("../Simu_data/Uncal_YearsBP_sim_up_",i,"_r_",r[j],"_error_",C14_errors[k],".txt"), sep = "\t", row.names = F) ## It purposedly overwrites the above
+			write.table(YearsBP,file = paste0("../Simu_data/Uncal_YearsBP_sim_upl_",i,"_r_",r[j],"_error_",C14_errors[k],".txt"), sep = "\t", row.names = F) ## It purposedly overwrites the above
 		}
 	}
 }
 
-saveRDS(simuls,"../Simu_data/simuls_up.rds")
+saveRDS(simuls,"../Simu_data/simuls_upl.rds")
 
 
