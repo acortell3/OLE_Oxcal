@@ -19,7 +19,7 @@ library(parallel)
 quickSetupOxcal() #this should be replaced by actual reference to the file path where oxcal is downloaded (otherwise would install it every time)
 
 ## Load required functions
-source('functions.R')
+source('Functions.R')
 
 #set.seed(123)
 
