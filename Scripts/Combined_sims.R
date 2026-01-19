@@ -5,7 +5,7 @@
 
 #################################################
 ########### HOLOCENE DATES
-#################################################
+#a################################################
 
 
 ## Load libraries
@@ -28,7 +28,7 @@ dates <- readRDS("../Simu_data/simuls_hol.rds")
 ndates <- 80
 sims <- nrow(dates)/ndates
 C14_errors <- c(20,50)
-r_vals <- c(0.01,0.02,0.06)
+r_vals <- c(0.01,0.03,0.06)
 
 # Cores for later sims
 ncores <- 15
@@ -292,18 +292,31 @@ rm(OLE_resamp_unif)
 rm(time_OLE_resamp_unif)
 
 ######### Oxcal
+## Arrange for sample sizes in Oxcal and CRIWM
+dates_ss_oxcr <- c(10,ndates/2,ndates) ## sample sizes for oxcal
+sim_index <- expand.grid(dts = 1:(nrow(dates)/ndates), ESS = dates_ss_oxcr) ## For indexing sims
+
 
 ## Oxcal uniform
 time_oxcal_unif <- system.time({
   oxcal_unif <- mclapply(
-    1:sims,
+    1:nrow(sim_index),
     function(z) {
-      dates_subset <- dates[(ndates*z - 79):(ndates*z), ]
-      oxcalRunner(
-        c14age = round(dates_subset$Year),
-        error  = dates_subset$Sd,
-        model  = "uniform"
-      )
+	    dts_id <- sim_index$dts[z]
+	    ESS <- sim_index$ESS[z]
+
+	    dates_subset <- dates[(ndates*dts_id - (ndates-1)):(ndates*dts_id), ]
+	    dates_subset <- dates_subset[sample(nrow(dates_subset),ESS),]
+	    est <- oxcalRunner(
+			       c14age = round(dates_subset$Year),
+			       error  = dates_subset$Sd,
+			       model  = "uniform"
+	    )
+	    est$Sd <- unique(dates_subset$Sd)
+	    est$start_date <- unique(dates_subset$start_date)
+	    est$r <- unique(dates_subset$r)
+	    est$ESS <- ESS
+	    return(est)
     },
     mc.cores = ncores
   )
@@ -317,17 +330,25 @@ rm(oxcal_unif)
 rm(time_oxcal_unif)
 
 ## Oxcal trapezoid
-
 time_oxcal_trap <- system.time({
   oxcal_trap <- mclapply(
-    1:sims,
+    1:nrow(sim_index),
     function(z) {
-      dates_subset <- dates[(ndates*z - 79):(ndates*z), ]
-      oxcalRunner(
-        c14age = round(dates_subset$Year),
-        error  = dates_subset$Sd,
-        model  = "trapezoid"
-      )
+	    dts_id <- sim_index$dts[z]
+	    ESS <- sim_index$ESS[z]
+
+	    dates_subset <- dates[(ndates*dts_id - (ndates-1)):(ndates*dts_id), ]
+	    dates_subset <- dates_subset[sample(nrow(dates_subset),ESS),]
+	    est <- oxcalRunner(
+			       c14age = round(dates_subset$Year),
+			       error  = dates_subset$Sd,
+			       model  = "trapezoid"
+	    )
+	    est$Sd <- unique(dates_subset$Sd)
+	    est$start_date <- unique(dates_subset$start_date)
+	    est$r <- unique(dates_subset$r)
+	    est$ESS <- ESS
+	    return(est)
     },
     mc.cores = ncores
   )
@@ -342,11 +363,10 @@ rm(time_oxcal_trap)
 
 
 ######### CRIWM
-
 sim <- 1000
 
 # Combinations of (i, r, sd)
-comb <- expand.grid(sim = 1:sim,r = r_vals,Sd = C14_errors)
+comb <- expand.grid(sim = 1:sim,r = r_vals,Sd = C14_errors, ESS = dates_ss_oxcr)
 
 time_criwm <- system.time({
 
@@ -355,20 +375,22 @@ time_criwm <- system.time({
     row <- comb[idx, ]
 
     # Build file name
-    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_hol_",row$sim, "_r_",row$r,"_error_",row$Sd,".txt")
+    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_hol_",row$sim, "_r_",row$r,"_error_",row$Sd,"_ESS_",row$ESS,".txt")
 
     # Run criwm
     res <- criwm(filepath, signor_lipps="arr")
 
     # Extract values
-    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = row$r,Sd = row$Sd,ESS = 80,simID_seed = idx)
+    r_v <- row$r
+    Sd_v <- row$Sd
+    ESS_v <- row$ESS
+    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = unique(r_v),Sd = unique(Sd_v),ESS = unique(ESS_v),simID_seed = idx)
   }, mc.cores = ncore)
 })
 
 # Single data frame
 CRIWM <- do.call(rbind, criwm_res)
 
-saveRDS(CRIWM,"../Results/CRIWM_hol.rds")
 saveRDS(time_criwm,"../Results/time_criwm_hol.rds")
 
 ## to save space
@@ -645,14 +667,23 @@ rm(time_OLE_resamp_unif)
 ## Oxcal uniform
 time_oxcal_unif <- system.time({
   oxcal_unif <- mclapply(
-    1:sims,
+    1:nrow(sim_index),
     function(z) {
-      dates_subset <- dates[(ndates*z - 79):(ndates*z), ]
-      oxcalRunner(
-        c14age = round(dates_subset$Year),
-        error  = dates_subset$Sd,
-        model  = "uniform"
-      )
+	    dts_id <- sim_index$dts[z]
+	    ESS <- sim_index$ESS[z]
+
+	    dates_subset <- dates[(ndates*dts_id - (ndates-1)):(ndates*dts_id), ]
+	    dates_subset <- dates_subset[sample(nrow(dates_subset),ESS),]
+	    est <- oxcalRunner(
+			       c14age = round(dates_subset$Year),
+			       error  = dates_subset$Sd,
+			       model  = "uniform"
+	    )
+	    est$Sd <- unique(dates_subset$Sd)
+	    est$start_date <- unique(dates_subset$start_date)
+	    est$r <- unique(dates_subset$r)
+	    est$ESS <- ESS
+	    return(est)
     },
     mc.cores = ncores
   )
@@ -669,14 +700,23 @@ rm(time_oxcal_unif)
 
 time_oxcal_trap <- system.time({
   oxcal_trap <- mclapply(
-    1:sims,
+    1:nrow(sim_index),
     function(z) {
-      dates_subset <- dates[(ndates*z - 79):(ndates*z), ]
-      oxcalRunner(
-        c14age = round(dates_subset$Year),
-        error  = dates_subset$Sd,
-        model  = "trapezoid"
-      )
+	    dts_id <- sim_index$dts[z]
+	    ESS <- sim_index$ESS[z]
+
+	    dates_subset <- dates[(ndates*dts_id - (ndates-1)):(ndates*dts_id), ]
+	    dates_subset <- dates_subset[sample(nrow(dates_subset),ESS),]
+	    est <- oxcalRunner(
+			       c14age = round(dates_subset$Year),
+			       error  = dates_subset$Sd,
+			       model  = "trapezoid"
+	    )
+	    est$Sd <- unique(dates_subset$Sd)
+	    est$start_date <- unique(dates_subset$start_date)
+	    est$r <- unique(dates_subset$r)
+	    est$ESS <- ESS
+	    return(est)
     },
     mc.cores = ncores
   )
@@ -695,7 +735,7 @@ rm(time_oxcal_trap)
 sim <- 1000
 
 # Combinations of (i, r, sd)
-comb <- expand.grid(sim = 1:sim,r = r_vals,Sd = C14_errors)
+comb <- expand.grid(sim = 1:sim,r = r_vals,Sd = C14_errors, ESS = dates_ss_oxcr)
 
 time_criwm <- system.time({
 
@@ -704,13 +744,16 @@ time_criwm <- system.time({
     row <- comb[idx, ]
 
     # Build file name
-    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_upl_",row$sim, "_r_",row$r,"_error_",row$Sd,".txt")
+    filepath <- paste0("../Simu_data/Uncal_YearsBP_sim_upl_",row$sim, "_r_",row$r,"_error_",row$Sd,"_ESS_",row$ESS,".txt")
 
     # Run criwm
     res <- criwm(filepath, signor_lipps="arr")
 
     # Extract values
-    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = row$r,Sd = row$Sd,ESS = 80,simID_seed = idx)
+    r_v <- row$r
+    Sd_v <- row$Sd
+    ESS_v <- row$ESS
+    data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = unique(r_v),Sd = unique(Sd_v),ESS = unique(ESS_v),simID_seed = idx)
   }, mc.cores = ncore)
 })
 
