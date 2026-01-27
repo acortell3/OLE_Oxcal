@@ -385,7 +385,7 @@ time_criwm <- system.time({
     Sd_v <- row$Sd
     ESS_v <- row$ESS
     data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = unique(r_v),Sd = unique(Sd_v),ESS = unique(ESS_v),simID_seed = idx)
-  }, mc.cores = ncore)
+  }, mc.cores = ncores)
 })
 
 # Single data frame
@@ -754,7 +754,7 @@ time_criwm <- system.time({
     Sd_v <- row$Sd
     ESS_v <- row$ESS
     data.frame(Estimate = res$criwm[2,2],upperCI = res$criwm[2,3],lowerCI = res$criwm[2,1],start_date = unique(dates$start_date)[comb$sim[idx]],r = unique(r_v),Sd = unique(Sd_v),ESS = unique(ESS_v),simID_seed = idx)
-  }, mc.cores = ncore)
+  }, mc.cores = ncores)
 })
 
 # Single data frame
