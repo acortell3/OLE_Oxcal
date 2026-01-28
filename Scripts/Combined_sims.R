@@ -391,6 +391,7 @@ time_criwm <- system.time({
 # Single data frame
 CRIWM <- do.call(rbind, criwm_res)
 
+saveRDS(CRIWM,"../Results/CRIWM_hol.rds")
 saveRDS(time_criwm,"../Results/time_criwm_hol.rds")
 
 ## to save space
