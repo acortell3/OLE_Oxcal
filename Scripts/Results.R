@@ -22,6 +22,8 @@ axlabs <- c()
 ylim_hol_lo <- -400
 ylim_hol_hi <- 650
 
+## Plot CIs
+
 png("../Figures/Figure_Holocene.png", res = 160, height = 1500, width = 1500)
 
 par(mfrow = c(3,2))
@@ -61,8 +63,42 @@ for (h in 1:length(index_r)){
 
 dev.off()
 
-#####################
-####### PLEISTOCENE
+# Plot target within CI
+png("../Figures/Figure_Holocene_hits.png", res = 160, height = 1500, width = 1500)
+
+## Create colour palettes
+ins <- c(rep("lightsteelblue1",4),rep("lightsteelblue2",7),rep("lightsteelblue3",7),rep("lightsteelblue4",7))
+outs <- rep("gray97",length(ins))
+
+
+par(mfrow = c(2,3), mar = c(8,4,4,2))
+for (h in 1:length(index_r)){
+	for (i in 1:length(index_Sd)){
+		hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i],]
+		## Order to keep consistency with previous plot
+		hol_data_ss <- hol_data_ss[order(hol_data_ss$ESS),]
+		hol_data_ss$group <- paste(hol_data_ss$ESS,"dates",hol_data_ss$method)
+		hol_data_ss$group <- factor(hol_data_ss$group, levels = unique(hol_data_ss$group))
+
+		inside <- hol_data_ss$start_date > hol_data_ss$lowerCI & hol_data_ss$start_date < hol_data_ss$upperCI
+		res <- table(hol_data_ss$group, inside)
+		mat_res <- t(res)
+    
+		#barplot(prop.table(mat_res,2), col = c("red","slateblue4","yellow3","black"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]))
+		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
+		
+		for (j in 1:ncol(mat_res)){
+			xx = prop.table(mat_res,2)
+			xx[,-j] = NA
+			colnames(xx)[-j] = NA
+			barplot(xx,col=c(outs[j],ins[j]), add=T, axes=F,xaxt = "n", border = NA) 
+		}
+	}
+}
+dev.off()
+
+####################
+######## PLEISTOCENE
 ple_data <- full_data[full_data$Period == "Pleistocene",]
 
 ## indexes for looping
@@ -115,5 +151,38 @@ for (h in 1:length(index_r)){
 dev.off()
 
 
+# Plot target within CI
+png("../Figures/Figure_Pleistocene_hits.png", res = 160, height = 1500, width = 1500)
+
+## Create colour palettes
+ins <- c(rep("lightsteelblue1",4),rep("lightsteelblue2",7),rep("lightsteelblue3",7),rep("lightsteelblue4",7))
+outs <- rep("gray97",length(ins))
+
+
+par(mfrow = c(2,3), mar = c(8,4,4,2))
+for (h in 1:length(index_r)){
+	for (i in 1:length(index_Sd)){
+		ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i],]
+		## Order to keep consistency with previous plot
+		ple_data_ss <- ple_data_ss[order(ple_data_ss$ESS),]
+		ple_data_ss$group <- paste(ple_data_ss$ESS,"dates",ple_data_ss$method)
+		ple_data_ss$group <- factor(ple_data_ss$group, levels = unique(ple_data_ss$group))
+
+		inside <- ple_data_ss$start_date > ple_data_ss$lowerCI & ple_data_ss$start_date < ple_data_ss$upperCI
+		res <- table(ple_data_ss$group, inside)
+		mat_res <- t(res)
+    
+		#barplot(prop.table(mat_res,2), col = c("red","slateblue4","yellow3","black"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]))
+		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
+		
+		for (j in 1:ncol(mat_res)){
+			xx = prop.table(mat_res,2)
+			xx[,-j] = NA
+			colnames(xx)[-j] = NA
+			barplot(xx,col=c(outs[j],ins[j]), add=T, axes=F,xaxt = "n", border = NA) 
+		}
+	}
+}
+dev.off()
 
 
