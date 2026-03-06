@@ -83,16 +83,19 @@ for (h in 1:length(index_r)){
 		inside <- hol_data_ss$start_date > hol_data_ss$lowerCI & hol_data_ss$start_date < hol_data_ss$upperCI
 		res <- table(hol_data_ss$group, inside)
 		mat_res <- t(res)
-    
+		mat_res <- rbind(mat_res[2,],mat_res[1,])
+
+
 		#barplot(prop.table(mat_res,2), col = c("red","slateblue4","yellow3","black"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]))
 		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
-		
+			
 		for (j in 1:ncol(mat_res)){
 			xx = prop.table(mat_res,2)
 			xx[,-j] = NA
 			colnames(xx)[-j] = NA
-			barplot(xx,col=c(outs[j],ins[j]), add=T, axes=F,xaxt = "n", border = NA) 
+			barplot(xx,col=c(ins[j],outs[j]), add=T, axes=F,xaxt = "n", border = NA) 
 		}
+		abline(h=0.95, lty = 2, lwd = 0.5)
 	}
 }
 dev.off()
@@ -171,6 +174,7 @@ for (h in 1:length(index_r)){
 		inside <- ple_data_ss$start_date > ple_data_ss$lowerCI & ple_data_ss$start_date < ple_data_ss$upperCI
 		res <- table(ple_data_ss$group, inside)
 		mat_res <- t(res)
+		mat_res <- rbind(mat_res[2,],mat_res[1,])
     
 		#barplot(prop.table(mat_res,2), col = c("red","slateblue4","yellow3","black"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]))
 		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
@@ -179,8 +183,9 @@ for (h in 1:length(index_r)){
 			xx = prop.table(mat_res,2)
 			xx[,-j] = NA
 			colnames(xx)[-j] = NA
-			barplot(xx,col=c(outs[j],ins[j]), add=T, axes=F,xaxt = "n", border = NA) 
+			barplot(xx,col=c(ins[j],outs[j]), add=T, axes=F,xaxt = "n", border = NA) 
 		}
+		abline(h=0.95, lty = 2, lwd = 0.5)
 	}
 }
 dev.off()
