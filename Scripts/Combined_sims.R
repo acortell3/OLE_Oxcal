@@ -304,8 +304,7 @@ sim_index <- expand.grid(dts = 1:(nrow(dates)/dates_seq), ESS = sample_size) ## 
 ## Oxcal uniform
 time_oxcal_unif <- system.time({
   oxcal_unif <- mclapply(
-	1:nrow(sim_index),
-	function(z) {
+	1:nrow(sim_index),function(z) {
 		dts_id <- sim_index$dts[z]
 		ESS <- sim_index$ESS[z]
 		
@@ -335,8 +334,7 @@ rm(time_oxcal_unif)
 ## Oxcal trapezoid
 time_oxcal_trap <- system.time({
   oxcal_trap <- mclapply(
-	1:nrow(sim_index),
-	function(z) {
+	1:nrow(sim_index),function(z) {
 		dts_id <- sim_index$dts[z]
 		ESS <- sim_index$ESS[z]
 		
@@ -464,7 +462,7 @@ saveRDS(time_OLE_medians,"../Results/time_OLE_medians_upl.rds")
 rm(OLE_medians)
 rm(time_OLE_medians)
 
-######### OLE RESAMPLE CALDATE (Our proposal)
+######## OLE RESAMPLE CALDATE (Our proposal)
 
 rsmp <- 1000
 
@@ -681,8 +679,7 @@ sim_index <- expand.grid(dts = 1:(nrow(dates)/dates_seq), ESS = sample_size) ## 
 ## Oxcal uniform
 time_oxcal_unif <- system.time({
   oxcal_unif <- mclapply(
-	1:nrow(sim_index),
-	function(z) {
+	1:nrow(sim_index),function(z) {
 		dts_id <- sim_index$dts[z]
 		ESS <- sim_index$ESS[z]
 		
@@ -712,8 +709,7 @@ rm(time_oxcal_unif)
 ## Oxcal trapezoid
 time_oxcal_trap <- system.time({
   oxcal_trap <- mclapply(
-	1:nrow(sim_index),
-	function(z) {
+	1:nrow(sim_index),function(z) {
 		dts_id <- sim_index$dts[z]
 		ESS <- sim_index$ESS[z]
 		
@@ -742,7 +738,6 @@ rm(time_oxcal_trap)
 
 
 ######### CRIWM
-sim <- 1000
 
 # Combinations of (i, r, sd)
 comb <- expand.grid(sim = 1:sim,r = r_vals,Sd = C14_errors, ESS = sample_size)
