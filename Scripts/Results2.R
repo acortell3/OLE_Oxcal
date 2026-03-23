@@ -14,7 +14,7 @@ res.pleistocene <- subset(res,Period=='Pleistocene')
 #params
 r  <- c(0.01,0.03,0.06)
 Sd  <- c(20,50)
-ESS  <- c(5,10,40,80)
+ESS  <- c(10,40,80)
 method  <- c('OLE_medians','OLE_resamp_caldate','OLE_resamp_norm','OLE_resamp_unif','CRIWM','oxcal_trap','oxcal_unif') 
 
 

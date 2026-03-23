@@ -17,6 +17,14 @@ OLE_resamp_unif_hol <- readRDS(paste0(path,"OLE_resamp_unif_hol.rds"))
 oxcal_trap_hol <- readRDS(paste0(path,"oxcal_trap_hol.rds"))
 oxcal_unif_hol <- readRDS(paste0(path,"oxcal_unif_hol.rds"))
 
+## Some OLEs are out of range. Discard those 
+## Values to discard if error message
+keep <- c("10","40","80")
+OLE_medians_hol <- OLE_medians_hol[OLE_medians_hol$sample_size %in% keep,]
+OLE_resamp_caldate_hol <- OLE_resamp_caldate_hol[OLE_resamp_caldate_hol$sample_size %in% keep,]
+OLE_resamp_norm_hol <- OLE_resamp_norm_hol[OLE_resamp_norm_hol$sample_size %in% keep,]
+OLE_resamp_unif_hol <- OLE_resamp_unif_hol[OLE_resamp_unif_hol$sample_size %in% keep,]
+
 ## Builds oxcal dfs
 ## Some Oxcal results failed with "Error in BCAD(post.df[,2]: 0 BC/AD is not a valid year". Subset only the ones for which the time range was valid
 oxcal_trap_hol <- oxcal_trap_hol[sapply(oxcal_trap_hol,length)>1]
@@ -30,6 +38,7 @@ oxcal_trap_hol_df <- data.frame("Estimate" = rep(NA,length(oxcal_trap_hol)),
 				"r" = sapply(oxcal_trap_hol, function(x) x$r),
 				"Sd" = sapply(oxcal_trap_hol, function(x) x$Sd),
 				"ESS" = sapply(oxcal_trap_hol, function(x) x$ESS),
+				"sample_size" = sapply(oxcal_trap_hol, function(x) x$ESS),
 				"simID_seed" = rep(NA,length(oxcal_trap_hol)))
 
 oxcal_unif_hol_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_hol)),
@@ -39,6 +48,7 @@ oxcal_unif_hol_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_hol)),
 				"r" = sapply(oxcal_unif_hol, function(x) x$r),
 				"Sd" = sapply(oxcal_unif_hol, function(x) x$Sd),
 				"ESS" = sapply(oxcal_unif_hol, function(x) x$ESS),
+				"sample_size" = sapply(oxcal_unif_hol, function(x) x$ESS),
 				"simID_seed" = rep(NA,length(oxcal_unif_hol)))
 
 hol_df <- rbind(CRIWM_hol,OLE_medians_hol,OLE_resamp_caldate_hol,OLE_resamp_norm_hol,OLE_resamp_unif_hol,oxcal_trap_hol_df,oxcal_unif_hol_df)
@@ -47,8 +57,10 @@ hol_df$method <- c(rep("CRIWM",nrow(CRIWM_hol)),rep("OLE_medians",nrow(OLE_media
 
 hol_df$Period <- rep("Holocene",nrow(hol_df))
 
-
-
+## The error had turned some columns to strings. Now we put all numerics back to numeric
+hol_df[] <- lapply(hol_df, function(x){
+			   y <- suppressWarnings(as.numeric(x))
+			   if (all(is.na(x) == is.na(y))) y else x})
 
 ### PLEISTOCENE
 ## Load rds
@@ -69,6 +81,7 @@ oxcal_trap_upl_df <- data.frame("Estimate" = rep(NA,length(oxcal_trap_upl)),
 				"r" = sapply(oxcal_trap_upl, function(x) x$r),
 				"Sd" = sapply(oxcal_trap_upl, function(x) x$Sd),
 				"ESS" = sapply(oxcal_trap_upl, function(x) x$ESS),
+				"sample_size" = sapply(oxcal_trap_upl, function(x) x$ESS),
 				"simID_seed" = rep(NA,length(oxcal_trap_upl)))
 
 oxcal_unif_upl_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_upl)),
@@ -78,6 +91,7 @@ oxcal_unif_upl_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_upl)),
 				"r" = sapply(oxcal_unif_upl, function(x) x$r),
 				"Sd" = sapply(oxcal_unif_upl, function(x) x$Sd),
 				"ESS" = sapply(oxcal_unif_upl, function(x) x$ESS),
+				"sample_size" = sapply(oxcal_unif_upl, function(x) x$ESS),
 				"simID_seed" = rep(NA,length(oxcal_unif_upl)))
 
 upl_df <- rbind(CRIWM_upl,OLE_medians_upl,OLE_resamp_caldate_upl,OLE_resamp_norm_upl,OLE_resamp_unif_upl,oxcal_trap_upl_df,oxcal_unif_upl_df)
