@@ -138,6 +138,43 @@ for (i in 1:length(index_r)){
 
 dev.off()
 
+##### SUPPLEMENTARY
+string_find <- unique(hol_data_OLE$method)
+string_title <- c("medians","resamp cal curve","resamp normal","resamp uniform")
+
+for (k in 1:length(string_find)){
+	OLE_hol <- hol_data_OLE[hol_data_OLE$method == string_find[k],]
+	
+	cs <- list()
+	index_nd <- unique(OLE_hol$ESS)
+	index_r_si <- unique(OLE_hol$r)
+	index_sd_si <- unique(OLE_hol$Sd)
+	
+	png(paste0("../Figures/Figure_SI_OLE_Hol_",k,".png"), res = 100, height = 1000, width = 1000)
+	par(mfrow = c(4,2))
+	for (j in 1:length(index_r_si)){
+		for (h in 1:length(index_sd_si)){
+			for (i in 1:length(index_nd)){
+				cs[[i]] <- OLE_hol[OLE_hol$ESS == index_nd[i] & OLE_hol$r == index_r_si[j] & OLE_hol$Sd == index_sd_si[h],]
+				cs[[i]]$Estimate_norm <- cs[[i]]$Estimate - cs[[i]]$start_date
+				cs[[i]]$upperCI_norm <- cs[[i]]$upperCI - cs[[i]]$start_date
+				cs[[i]]$lowerCI_norm <- cs[[i]]$lowerCI - cs[[i]]$start_date
+			}
+			
+			plot(x=1, y = mean(cs[[1]]$Estimate_norm), pch = 16, col = "blue", ylim = c(-200,650), xlim = c(0,5), ylab = "Estimate", xlab = "ndates", xaxt = "n", main = paste0("Holocene OLE ",string_title[k],", sd = ",index_sd_si[h]," r = ",index_r_si[j]))
+			axis(side = 1, at = seq(0,5), labels = c("",5,10,20,40,""))
+			lines(x=rep(1,2), y = c(mean(cs[[1]]$upperCI_norm),mean(cs[[1]]$lowerCI_norm)), lwd = 2, col = "orange")
+			abline(h = 0, lty = 2)
+			for (i in 1:length(cs)){
+				lines(x=rep(i,2), y = c(mean(cs[[i]]$upperCI_norm),mean(cs[[i]]$lowerCI_norm)), lwd = 2, col = "orange")
+				points(x=i, y = mean(cs[[i]]$Estimate_norm), pch = 16, col = "blue")
+			}
+		}
+	}
+	dev.off()
+}
+
+
 ####################
 ######## PLEISTOCENE
 ple_data_full <- full_data[full_data$Period == "Pleistocene",]
@@ -260,3 +297,39 @@ for (i in 1:length(index_r)){
 }
 
 dev.off()
+
+##### SUPPLEMENTARY
+string_find <- unique(ple_data_OLE$method)
+string_title <- c("medians","resamp cal curve","resamp normal","resamp uniform")
+
+for (k in 1:length(string_find)){
+	OLE_ple <- ple_data_OLE[ple_data_OLE$method == string_find[k],]
+	
+	cs <- list()
+	index_nd <- unique(OLE_ple$ESS)
+	index_r_si <- unique(OLE_ple$r)
+	index_sd_si <- unique(OLE_ple$Sd)
+	
+	png(paste0("../Figures/Figure_SI_OLE_Ple_",k,".png"), res = 100, height = 1000, width = 1000)
+	par(mfrow = c(4,2))
+	for (j in 1:length(index_r_si)){
+		for (h in 1:length(index_sd_si)){
+			for (i in 1:length(index_nd)){
+				cs[[i]] <- OLE_ple[OLE_ple$ESS == index_nd[i] & OLE_ple$r == index_r_si[j] & OLE_ple$Sd == index_sd_si[h],]
+				cs[[i]]$Estimate_norm <- cs[[i]]$Estimate - cs[[i]]$start_date
+				cs[[i]]$upperCI_norm <- cs[[i]]$upperCI - cs[[i]]$start_date
+				cs[[i]]$lowerCI_norm <- cs[[i]]$lowerCI - cs[[i]]$start_date
+			}
+			
+			plot(x=1, y = mean(cs[[1]]$Estimate_norm), pch = 16, col = "blue", ylim = c(-100,1000), xlim = c(0,5), ylab = "Estimate", xlab = "ndates", xaxt = "n", main = paste0("Pleistocene OLE ",string_title[k],", sd = ",index_sd_si[h]," r = ",index_r_si[j]))
+			axis(side = 1, at = seq(0,5), labels = c("",5,10,20,40,""))
+			lines(x=rep(1,2), y = c(mean(cs[[1]]$upperCI_norm),mean(cs[[1]]$lowerCI_norm)), lwd = 2, col = "orange")
+			abline(h = 0, lty = 2)
+			for (i in 1:length(cs)){
+				lines(x=rep(i,2), y = c(mean(cs[[i]]$upperCI_norm),mean(cs[[i]]$lowerCI_norm)), lwd = 2, col = "orange")
+				points(x=i, y = mean(cs[[i]]$Estimate_norm), pch = 16, col = "blue")
+			}
+		}
+	}
+	dev.off()
+}
