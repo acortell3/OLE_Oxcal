@@ -4,8 +4,7 @@
 ######## OLE calculation function taken from Key et al. 2024 since sExtinct has been retracted from CRAN
 OLE.test <- function(dd, alpha){ ## dd is the dates and alpha is the confidence interval
   # records are sorted in a reverse order, as required by OLE method
-  #sights <- rev(sort(dd))
-  sights <- dd
+  sights <- rev(sort(dd))
 	# calculation of k, v, e, lambda and other values
   k <- length(sights)
   v <- (1/(k-1)) * sum(log((sights[1] - sights[k])/(sights[1] - sights[2:(k-1)])))
