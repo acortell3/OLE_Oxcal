@@ -1,6 +1,6 @@
 
 
-####### Script to plot and visualise the results of the paper <whateva>
+###### Script to plot and visualise the results of the paper <whateva>
 
 #### Load data, utilities and packages
 full_data <- readRDS("../Results/full_output.rds")
