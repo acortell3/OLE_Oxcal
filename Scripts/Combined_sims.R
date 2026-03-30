@@ -62,8 +62,8 @@ OLE_medians_list <- mclapply(
 						     
 						     ## Avoid ties
 						     for (b in 2:length(dates_median_ss)){
-							     if (dates_median_ss[b] <= dates_median_ss[b-1]){
-								     dates_median_ss[b] <- dates_median_ss[b-1] + round(runif(1,1,10))
+							     if (dates_median_ss[b] == dates_median_ss[b-1]){
+								     dates_median_ss[b] <- dates_median_ss[b] + 1
 							     }
 						     }
 						     
@@ -124,8 +124,8 @@ OLE_resamp_list <- mclapply(
 								    resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
 								    # Break ties
 								    for (b in 2:length(resamp_dates_temp)){
-									    if (resamp_dates_temp[b] <= resamp_dates_temp[b-1]){
-										    resamp_dates_temp[b] <- resamp_dates_temp[b-1] + round(runif(1,1,10))
+									    if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
+										    resamp_dates_temp[b] <- resamp_dates_temp[b]+1
 									    }
 								    }
 								    OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
@@ -195,8 +195,8 @@ OLE_resamp_norm_list <- mclapply(
 									 resamp_dates_temp <- resamp_dates[1:dates_ss[j]]							 
 									 # Break ties
 									 for (b in 2:length(resamp_dates_temp)){
-										 if (resamp_dates_temp[b] <= resamp_dates_temp[b-1]){
-											 resamp_dates_temp[b] <- resamp_dates_temp[b-1] + round(runif(1,1,10))
+										 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
+											 resamp_dates_temp[b] <- resamp_dates_temp[b]+1
 										 }
 									 }
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
@@ -264,8 +264,8 @@ OLE_resamp_unif_list <- mclapply(
 									 
 									 # Break ties
 									 for (b in 2:length(resamp_dates_temp)){
-										 if (resamp_dates_temp[b] <= resamp_dates_temp[b-1]){
-											 resamp_dates_temp[b] <- resamp_dates_temp[b-1] + round(runif(1,1,10))}
+										 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
+											 resamp_dates_temp[b] <- resamp_dates_temp[b]+1}
 									 }
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 									 
@@ -437,8 +437,8 @@ OLE_medians_list <- mclapply(
 						     
 						     ## Avoid ties
 						     for (b in 2:length(dates_median_ss)){
-							     if (dates_median_ss[b] <= dates_median_ss[b-1]){
-								     dates_median_ss[b] <- dates_median_ss[b-1] + round(runif(1,1,10))
+							     if (dates_median_ss[b] == dates_median_ss[b-1]){
+								     dates_median_ss[b] <- dates_median_ss[b]+1
 							     }
 						     }
 						     
@@ -499,8 +499,8 @@ OLE_resamp_list <- mclapply(
 								    resamp_dates_temp <- resamp_dates[1:dates_ss[j]]
 								    # Break ties
 								    for (b in 2:length(resamp_dates_temp)){
-									    if (resamp_dates_temp[b] <= resamp_dates_temp[b-1]){
-										    resamp_dates_temp[b] <- resamp_dates_temp[b-1] + round(runif(1,1,10))
+									    if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
+										    resamp_dates_temp[b] <- resamp_dates_temp[b]+1
 									    }
 								    }
 								    OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
@@ -570,8 +570,8 @@ OLE_resamp_norm_list <- mclapply(
 									 resamp_dates_temp <- resamp_dates[1:dates_ss[j]]							 
 									 # Break ties
 									 for (b in 2:length(resamp_dates_temp)){
-										 if (resamp_dates_temp[b] <= resamp_dates_temp[b-1]){
-											 resamp_dates_temp[b] <- resamp_dates_temp[b-1] + round(runif(1,1,10))
+										 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
+											 resamp_dates_temp[b] <- resamp_dates_temp[b]+1
 										 }
 									 }
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
@@ -639,8 +639,8 @@ OLE_resamp_unif_list <- mclapply(
 									 
 									 # Break ties
 									 for (b in 2:length(resamp_dates_temp)){
-										 if (resamp_dates_temp[b] <= resamp_dates_temp[b-1]){
-											 resamp_dates_temp[b] <- resamp_dates_temp[b-1] + round(runif(1,1,10))}
+										 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
+											 resamp_dates_temp[b] <- resamp_dates_temp[b]+1}
 									 }
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 									 
