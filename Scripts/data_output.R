@@ -61,6 +61,11 @@ hol_df$Period <- rep("Holocene",nrow(hol_df))
 hol_df[] <- lapply(hol_df, function(x){
 			   y <- suppressWarnings(as.numeric(x))
 			   if (all(is.na(x) == is.na(y))) y else x})
+## Discard NAs
+hol_df <- hol_df[complete.cases(hol_df[,c(2:8)]),]
+## Remove if there are negative values
+hol_df <- hol_df[apply(hol_df[,c(2:8)] >= 0, 1, all),]
+
 
 ### PLEISTOCENE
 ## Load rds
