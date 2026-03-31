@@ -27,8 +27,8 @@ index_sample_size <- sort(unique(hol_data$sample_size))
 index_method <- unique(hol_data$method)
 pl_num <- length(unique(index_method))*3
 axlabs <- c()
-ylim_hol_lo <- -400
-ylim_hol_hi <- 650
+ylim_hol_lo <- -2000
+ylim_hol_hi <- 750
 
 ## Plot CIs
 
@@ -115,12 +115,12 @@ colorinchis <- c("darkorange2","darkorange3","darkorange4")
 par(mfrow=c(3,2),mar=c(10,4,2,2))
 for (i in 1:length(index_r)){
 	for (j in 1:length(index_Sd)){
-		plot(NULL,xlim=c(1,pl_num),ylim=c(0,1200),axes=F,xlab='',ylab='Precision')
-		abline(h = seq(0,1200,100), lty = 2, col = adjustcolor("gray", alpha = 0.3))
+		plot(NULL,xlim=c(1,pl_num),ylim=c(0,4500),axes=F,xlab='',ylab='Precision')
+		abline(h = seq(0,4000,100), lty = 2, col = adjustcolor("gray", alpha = 0.3))
 		title(main=paste0('r=',index_r[i],', Sd=',index_Sd[j]))
 		counter  <- 1
 		for (k in 1:length(index_sample_size)){
-			text(x=counter+4,y=1650,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
+			text(x=counter+4,y=4450,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
 			for (m in 1:length(index_method)){
 				ii  <- which(hol_data$r==index_r[i]&hol_data$Sd==index_Sd[j]&hol_data$sample_size==index_sample_size[k]&hol_data$method==index_method[m])
 				if(length(ii)>1){
@@ -154,8 +154,8 @@ for (h in 1:length(index_r)){
 		png(paste0("../Figures/Figure_Holocene_OLE_SI_Sd_",index_Sd[i],"_r_",index_r[h],".png"), res = 160, height = 1500, width = 1500)
 		par(mfrow=c(2,2))
 		for (j in 1:length(index_method_OLE)){
-			plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,5), ylim = c(-200,650), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("r = ",index_r[h]," Sd = ",index_Sd[i]," method = ", method_OLE_names[j]))
-			abline(h = seq(-200,650,100), lty = 2, col = adjustcolor("blue", alpha = 0.1))
+			plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,5), ylim = c(-1700,1700), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("r = ",index_r[h]," Sd = ",index_Sd[i]," method = ", method_OLE_names[j]))
+			abline(h = seq(-1700,1700,100), lty = 2, col = adjustcolor("blue", alpha = 0.1))
 			for (k in 1:length(index_ESS)){
 			sgl <- hol_data_OLE_ss[hol_data_OLE_ss$sample_size == 80 & hol_data_OLE_ss$ESS == index_ESS[k] & hol_data_OLE_ss$method == index_method_OLE[j],]
 			if (nrow(sgl)!= 0){
