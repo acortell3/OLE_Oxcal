@@ -193,8 +193,8 @@ index_sample_size <- sort(unique(ple_data$sample_size))
 index_method <- unique(ple_data$method)
 pl_num <- length(unique(index_method))*3
 axlabs <- c()
-ylim_ple_lo <- -500
-ylim_ple_hi <- 1000
+ylim_ple_lo <- -3000
+ylim_ple_hi <- 2000
 
 png("../Figures/Figure_Pleistocene.png", res = 160, height = 1500, width = 1500)
 
@@ -275,12 +275,12 @@ colorinchis <- c("darkorange2","darkorange3","darkorange4")
 par(mfrow=c(3,2),mar=c(10,4,2,2))
 for (i in 1:length(index_r)){
 	for (j in 1:length(index_Sd)){
-		plot(NULL,xlim=c(1,pl_num),ylim=c(0,1700),axes=F,xlab='',ylab='Precision')
-		abline(h = seq(0,1500,100), lty = 2, col = adjustcolor("gray", alpha = 0.3))
+		plot(NULL,xlim=c(1,pl_num),ylim=c(0,6500),axes=F,xlab='',ylab='Precision')
+		abline(h = seq(0,6000,100), lty = 2, col = adjustcolor("gray", alpha = 0.3))
 		title(main=paste0('r=',index_r[i],', Sd=',index_Sd[j]))
 		counter  <- 1
 		for (k in 1:length(index_sample_size)){
-			text(x=counter+4,y=1650,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
+			text(x=counter+4,y=6350,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
 			for (m in 1:length(index_method)){
 				ii  <- which(ple_data$r==index_r[i]&ple_data$Sd==index_Sd[j]&ple_data$sample_size==index_sample_size[k]&ple_data$method==index_method[m])
 				if(length(ii)>1){
@@ -306,8 +306,8 @@ for (h in 1:length(index_r)){
 		png(paste0("../Figures/Figure_Pleistocene_OLE_SI_Sd_",index_Sd[i],"_r_",index_r[h],".png"), res = 160, height = 1500, width = 1500)
 		par(mfrow=c(2,2))
 		for (j in 1:length(index_method_OLE)){
-			plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,5), ylim = c(-50,900), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("r = ",index_r[h]," Sd = ",index_Sd[i]," method = ", method_OLE_names[j]))
-			abline(h = seq(100,900,100), lty = 2, col = adjustcolor("blue", alpha = 0.1))
+			plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,5), ylim = c(-3000,3000), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("r = ",index_r[h]," Sd = ",index_Sd[i]," method = ", method_OLE_names[j]))
+			abline(h = seq(-3000,3000,100), lty = 2, col = adjustcolor("blue", alpha = 0.1))
 			for (k in 1:length(index_ESS)){
 			sgl <- ple_data_OLE_ss[ple_data_OLE_ss$sample_size == 80 & ple_data_OLE_ss$ESS == index_ESS[k] & ple_data_OLE_ss$method == index_method_OLE[j],]
 			if (nrow(sgl)!= 0){
@@ -326,3 +326,60 @@ for (h in 1:length(index_r)){
 		dev.off()
 	}
 }
+
+####### Plots for calibration curve
+## Utilities for for looping
+## These are from before
+#index_r <- unique(hol_data$r)
+#index_Sd <- unique(hol_data$Sd)
+#index_sample_size <- sort(unique(hol_data$sample_size))
+#index_method <- unique(hol_data$method)
+#pl_num <- length(unique(index_method))*3
+
+## New
+#index_period <- unique(full_data$Period)
+cols <- c(rep("lightblue2",4),"lightblue3",rep("lightblue4",2)) 
+
+for (h in 1:length(index_r)){
+	for (k in 1:length(index_Sd)){
+		png(paste0("../Figures/Figure_Cal_curves","_r_",index_r[h],"_Sd_",index_Sd[k],".png"), res = 100, height = 1500, width = 1500)
+		par(mfcol = c(7,2))
+		
+		for (j in 1:length(index_method)){
+			subset_plot <- full_data[full_data$Period == "Holocene"  & full_data$method == index_method[j] & full_data$r == index_r[h] & full_data$Sd == index_Sd[k] & full_data$sample_size == 80,]
+			
+			ylimvals <- c(-700,700)
+			
+			if (length(unique(subset_plot$ESS)) > 1){
+				subset_plot <- subset_plot[subset_plot$ESS == 10,]
+				ylimvals <- c(-5000,5000)
+			}
+			
+			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Holocene ",index_method[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
+			for (i in 1:nrow(subset_plot)){
+				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
+				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
+				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = cols[j], lwd = 2) 
+			}
+		}
+		
+		for (j in 1:length(index_method)){
+			subset_plot <- full_data[full_data$Period == "Pleistocene" & full_data$method == index_method[j] & full_data$r == index_r[h] & full_data$Sd == index_Sd[k] & full_data$sample_size == 80,]
+			
+			ylimvals <- c(-1500,1500)
+			
+			if (length(unique(subset_plot$ESS)) > 1){
+				subset_plot <- subset_plot[subset_plot$ESS == 10,]
+				ylimvals <- c(-6500,6500)
+			}
+			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Pleistocene ",index_method[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			for (i in 1:nrow(subset_plot)){
+				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
+				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
+				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = cols[j], lwd = 2) 
+			}
+		}
+		dev.off()
+	}
+}
+
