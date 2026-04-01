@@ -1,6 +1,6 @@
 
 
-####### Script to plot and visualise the results of the paper <whateva>
+###### Script to plot and visualise the results of the paper <whateva>
 
 #### Load data, utilities and packages
 full_data <- readRDS("../Results/full_output.rds")
@@ -105,6 +105,7 @@ for (h in 1:length(index_r)){
 }
 dev.off()
 
+library(vioplot)
 # Plot Precision
 png("../Figures/Figure_Holocene_Precision.png", res = 100, height = 1500, width = 1500)
 
@@ -115,17 +116,18 @@ colorinchis <- c("darkorange2","darkorange3","darkorange4")
 par(mfrow=c(3,2),mar=c(10,4,2,2))
 for (i in 1:length(index_r)){
 	for (j in 1:length(index_Sd)){
-		plot(NULL,xlim=c(1,pl_num),ylim=c(0,4500),axes=F,xlab='',ylab='Precision')
-		abline(h = seq(0,4000,100), lty = 2, col = adjustcolor("gray", alpha = 0.3))
+		plot(NULL,xlim=c(1,pl_num),ylim=c(0,7500),axes=F,xlab='',ylab='Precision')
+		abline(h = seq(0,7000,100), lty = 2, col = adjustcolor("gray", alpha = 0.3))
 		title(main=paste0('r=',index_r[i],', Sd=',index_Sd[j]))
 		counter  <- 1
 		for (k in 1:length(index_sample_size)){
-			text(x=counter+4,y=4450,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
+			text(x=counter+4,y=7450,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
 			for (m in 1:length(index_method)){
 				ii  <- which(hol_data$r==index_r[i]&hol_data$Sd==index_Sd[j]&hol_data$sample_size==index_sample_size[k]&hol_data$method==index_method[m])
 				if(length(ii)>1){
 					tmp <- hol_data[ii,]
-					boxplot(tmp$precision,at=counter,add=T,outline=F,axes=F,lty=1,col = colorinchis[k])
+					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
+					#boxplot(tmp$precision,at=counter,add=T,outline=F,axes=F,lty=1,col = colorinchis[k])
 					axis(1,at=counter,label=index_method[m],las=2,cex=0.5)
 					counter  <- counter+1
 				}
