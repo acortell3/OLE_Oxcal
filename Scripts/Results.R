@@ -71,7 +71,9 @@ for (h in 1:length(index_r)){
 dev.off()
 
 # Plot target within CI
-png("../Figures/Figure_Holocene_accuracy.png", res = 160, height = 1500, width = 1500)
+names_accuracy <- c("OLE-median, n = 10", "OLE-true, n = 10","OLE-normal, n = 10","OLE-uniform, n = 10","CRIWM, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","OLE-median, n = 40", "OLE-true, n = 40","OLE-normal, n = 40","OLE-uniform, n = 40","CRIWM, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","OLE-median, n = 80", "OLE-true, n = 80","OLE-normal, n = 80","OLE-uniform, n = 80","CRIWM, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
+
+png("../Figures/Fig_1.png", res = 160, height = 1500, width = 1500)
 
 ## Create colour palettes
 ins <- c(rep("lightsteelblue1",7),rep("lightsteelblue3",7),rep("lightsteelblue4",7))
@@ -91,6 +93,7 @@ for (h in 1:length(index_r)){
 		res <- table(hol_data_ss$group, inside)
 		mat_res <- t(res)
 		mat_res <- rbind(mat_res[2,],mat_res[1,])
+		colnames(mat_res) <- names_accuracy
 
 		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
 			
@@ -107,7 +110,9 @@ dev.off()
 
 library(vioplot)
 # Plot Precision
-png("../Figures/Figure_Holocene_Precision.png", res = 100, height = 1500, width = 1500)
+xlabs <- c("OLE-median","OLE-true","OLE-normal","OLE-uniform","CRIWM","BPM-trapezoid","BPM-uniform")
+
+png("../Figures/Fig_3.png", res = 100, height = 1500, width = 1500)
 
 hol_data$precision <- abs(hol_data$upperCI-hol_data$lowerCI)
 colorinchis <- c("darkorange2","darkorange3","darkorange4")
@@ -128,7 +133,7 @@ for (i in 1:length(index_r)){
 					tmp <- hol_data[ii,]
 					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
 					#boxplot(tmp$precision,at=counter,add=T,outline=F,axes=F,lty=1,col = colorinchis[k])
-					axis(1,at=counter,label=index_method[m],las=2,cex=0.5)
+					axis(1,at=counter,label=xlabs[m],las=2,cex=0.5)
 					counter  <- counter+1
 				}
 			}
@@ -237,7 +242,7 @@ for (h in 1:length(index_r)){
 dev.off()
 
 # Plot target within CI
-png("../Figures/Figure_Pleistocene_accuracy.png", res = 160, height = 1500, width = 1500)
+png("../Figures/Fig_2.png", res = 160, height = 1500, width = 1500)
 
 par(mfrow = c(2,3), mar = c(8,4,4,2))
 for (h in 1:length(index_r)){
@@ -252,6 +257,7 @@ for (h in 1:length(index_r)){
 		res <- table(ple_data_ss$group, inside)
 		mat_res <- t(res)
 		mat_res <- rbind(mat_res[2,],mat_res[1,])
+		colnames(mat_res) <- names_accuracy
 
 		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Pleistocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
 			
@@ -268,7 +274,7 @@ dev.off()
 
 
 # Plot Precision
-png("../Figures/Figure_Pleistocene_Precision.png", res = 100, height = 1500, width = 1500)
+png("../Figures/Fig_4.png", res = 100, height = 1500, width = 1500)
 
 ple_data$precision <- abs(ple_data$upperCI-ple_data$lowerCI)
 colorinchis <- c("darkorange2","darkorange3","darkorange4")
@@ -289,7 +295,7 @@ for (i in 1:length(index_r)){
 					tmp <- ple_data[ii,]
 					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
 					#boxplot(tmp$precision,at=counter,add=T,outline=F,axes=F,lty=1,col = colorinchis[k])
-					axis(1,at=counter,label=index_method[m],las=2,cex=0.5)
+					axis(1,at=counter,label=xlabs[m],las=2,cex=0.5)
 					counter  <- counter+1
 				}
 			}
@@ -385,4 +391,30 @@ for (h in 1:length(index_r)){
 		dev.off()
 	}
 }
+
+##### CHECK COMPUTATION TIMES
+time_criwm_hol <- readRDS("../Results/time_criwm_hol.rds")
+time_criwm_upl <- readRDS("../Results/time_criwm_upl.rds")
+time_OLE_medians_hol <- readRDS("../Results/time_OLE_medians_hol.rds")
+time_OLE_medians_upl <- readRDS("../Results/time_OLE_medians_upl.rds")
+time_OLE_resamp_caldate_hol <- readRDS("../Results/time_OLE_resamp_caldate_hol.rds")
+time_OLE_resamp_caldate_upl <- readRDS("../Results/time_OLE_resamp_caldate_upl.rds")
+time_OLE_resamp_norm_hol <- readRDS("../Results/time_OLE_resamp_norm_hol.rds")
+time_OLE_resamp_norm_upl <- readRDS("../Results/time_OLE_resamp_norm_upl.rds")
+time_OLE_resamp_unif_hol <- readRDS("../Results/time_OLE_resamp_unif_hol.rds")
+time_OLE_resamp_unif_upl <- readRDS("../Results/time_OLE_resamp_unif_upl.rds")
+time_oxcal_unif_hol <- readRDS("../Results/time_oxcal_unif_hol.rds")
+time_oxcal_unif_upl <- readRDS("../Results/time_oxcal_unif_upl.rds")
+time_oxcal_trap_hol <- readRDS("../Results/time_oxcal_trap_hol.rds")
+time_oxcal_trap_upl <- readRDS("../Results/time_oxcal_trap_upl.rds")
+
+time_seconds <- data.frame("Holocene" = c(time_criwm_hol[3],time_OLE_medians_hol[3],time_OLE_resamp_unif_hol[3],time_OLE_resamp_norm_hol[3],time_OLE_resamp_caldate_hol[3],time_oxcal_unif_hol[3],time_oxcal_trap_hol[3]),
+			  "Pleistocene"  = c(time_criwm_upl[3],time_OLE_medians_upl[3],time_OLE_resamp_unif_upl[3],time_OLE_resamp_norm_upl[3],time_OLE_resamp_caldate_upl[3],time_oxcal_unif_upl[3],time_oxcal_trap_upl[3]))
+
+
+df_format <- as.data.frame(lapply(time_seconds, function(x) {
+					  sprintf("%02.0f:%02.0f:%02.0f",x %/% 3600,(x %% 3600) %/% 60,x %% 60)}
+			  )
+)
+
 
