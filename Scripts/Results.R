@@ -30,46 +30,6 @@ axlabs <- c()
 ylim_hol_lo <- -2000
 ylim_hol_hi <- 750
 
-## Plot CIs
-
-png("../Figures/Figure_Holocene.png", res = 160, height = 1500, width = 1500)
-
-par(mfrow = c(3,2))
-
-for (h in 1:length(index_r)){
-	for (i in 1:length(index_Sd)){
-		hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i],]
-		
-		plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,pl_num+1), ylim = c(ylim_hol_lo,ylim_hol_hi), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]))
-		polygon(x = c(0.5,7.5,7.5,0.5), y = c(ylim_hol_lo,ylim_hol_lo,ylim_hol_hi,ylim_hol_hi), col = adjustcolor("red", alpha = 0.05), border = NA)
-		polygon(x = c(7.5,14.5,14.5,7.5), y = c(ylim_hol_lo,ylim_hol_lo,ylim_hol_hi,ylim_hol_hi), col = adjustcolor("red", alpha = 0.09), border = NA)
-		polygon(x = c(14.5,21.5,21.5,14.5), y = c(ylim_hol_lo,ylim_hol_lo,ylim_hol_hi,ylim_hol_hi), col = adjustcolor("red", alpha = 0.13), border = NA)
-		text(x = c(3.5,10.5,17.5), y = rep(ylim_hol_lo+100,4), labels = c("10 dates", "40 dates", "80 dates"), cex  = 0.7)	
-		index <- 1
-		
-		for (j in 1:length(index_sample_size)){
-			for (k in 1:length(index_method)){
-				sgl <- hol_data_ss[hol_data_ss$sample_size == index_sample_size[j] & hol_data_ss$method == index_method[k],]
-				
-				if (nrow(sgl)!= 0){
-					sgl$upperCI_norm <- sgl$upperCI - sgl$start_date
-					sgl$lowerCI_norm <- sgl$lowerCI - sgl$start_date
-					
-					lines(x = c(index,index), y = c(mean(sgl$upperCI_norm),mean(sgl$lowerCI_norm)), col = "lightblue3")
-					lines(x = c(index-0.2,index+0.2), y = rep(mean(sgl$upperCI_norm),2), lwd = 2, col = "lightblue4")
-					lines(x = c(index-0.2,index+0.2), y = rep(mean(sgl$lowerCI_norm),2), lwd = 2, col = "lightblue4")
-					axlabs <- append(axlabs,index_method[k])	
-					index <- index + 1
-				}
-			}
-		}
-		axis(side = 1, at = seq(1,pl_num), labels = axlabs, las = 2, cex.axis = 0.5)
-		axlabs <- c()
-	}
-}
-
-dev.off()
-
 # Plot target within CI
 names_accuracy <- c("OLE-median, n = 10", "OLE-true, n = 10","OLE-normal, n = 10","OLE-uniform, n = 10","CRIWM, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","OLE-median, n = 40", "OLE-true, n = 40","OLE-normal, n = 40","OLE-uniform, n = 40","CRIWM, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","OLE-median, n = 80", "OLE-true, n = 80","OLE-normal, n = 80","OLE-uniform, n = 80","CRIWM, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
 
@@ -108,8 +68,8 @@ for (h in 1:length(index_r)){
 }
 dev.off()
 
-library(vioplot)
 # Plot Precision
+library(vioplot)
 xlabs <- c("OLE-median","OLE-true","OLE-normal","OLE-uniform","CRIWM","BPM-trapezoid","BPM-uniform")
 
 png("../Figures/Fig_3.png", res = 100, height = 1500, width = 1500)
@@ -146,41 +106,6 @@ for (i in 1:length(index_r)){
 
 dev.off()
 
-##### SUPPLEMENTARY
-index_ESS <- unique(hol_data_OLE$ESS)
-index_method_OLE <- index_method[1:4]
-index_SI <- c(1:4)
-axlabs <- c()
-
-## Shorter names for method
-method_OLE_names <- c("Medians", "rCaldate", "rNormal", "rUniform") 
-
-for (h in 1:length(index_r)){
-	for (i in 1:length(index_Sd)){
-		hol_data_OLE_ss <- hol_data_OLE[hol_data_OLE$r == index_r[h] & hol_data_OLE$Sd == index_Sd[i],]
-		png(paste0("../Figures/Figure_Holocene_OLE_SI_Sd_",index_Sd[i],"_r_",index_r[h],".png"), res = 160, height = 1500, width = 1500)
-		par(mfrow=c(2,2))
-		for (j in 1:length(index_method_OLE)){
-			plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,5), ylim = c(-1700,1700), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("r = ",index_r[h]," Sd = ",index_Sd[i]," method = ", method_OLE_names[j]))
-			abline(h = seq(-1700,1700,100), lty = 2, col = adjustcolor("blue", alpha = 0.1))
-			for (k in 1:length(index_ESS)){
-			sgl <- hol_data_OLE_ss[hol_data_OLE_ss$sample_size == 80 & hol_data_OLE_ss$ESS == index_ESS[k] & hol_data_OLE_ss$method == index_method_OLE[j],]
-			if (nrow(sgl)!= 0){
-					sgl$upperCI_norm <- sgl$upperCI - sgl$start_date
-					sgl$lowerCI_norm <- sgl$lowerCI - sgl$start_date
-					lines(x = c(index_SI[k],index_SI[k]), y = c(mean(sgl$upperCI_norm),mean(sgl$lowerCI_norm)), col = "lightblue3")
-					lines(x = c(index_SI[k]-0.2,index_SI[k]+0.2), y = rep(mean(sgl$upperCI_norm),2), lwd = 2, col = "lightblue4")
-					lines(x = c(index_SI[k]-0.2,index_SI[k]+0.2), y = rep(mean(sgl$lowerCI_norm),2), lwd = 2, col = "lightblue4")
-					axlabs <- append(axlabs,paste0("k = ",sgl$ESS[k]))	
-				}	
-			}
-			axis(side = 1, at = seq(1,4), labels = axlabs, las = 2, cex.axis = 0.8)
-			axlabs <- c()
-			#dev.off()
-		}
-		dev.off()
-	}
-}
 
 ####################
 ######## PLEISTOCENE
@@ -202,44 +127,6 @@ pl_num <- length(unique(index_method))*3
 axlabs <- c()
 ylim_ple_lo <- -3000
 ylim_ple_hi <- 2000
-
-png("../Figures/Figure_Pleistocene.png", res = 160, height = 1500, width = 1500)
-
-par(mfrow = c(3,2))
-
-for (h in 1:length(index_r)){
-	for (i in 1:length(index_Sd)){
-		ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i],]
-		
-		plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,pl_num+1), ylim = c(ylim_ple_lo,ylim_ple_hi), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("Pleistocene, r = ",index_r[h]," Sd = ",index_Sd[i]))
-		polygon(x = c(0.5,7.5,7.5,0.5), y = c(ylim_ple_lo,ylim_ple_lo,ylim_ple_hi,ylim_ple_hi), col = adjustcolor("red", alpha = 0.05), border = NA)
-		polygon(x = c(7.5,14.5,14.5,7.5), y = c(ylim_ple_lo,ylim_ple_lo,ylim_ple_hi,ylim_ple_hi), col = adjustcolor("red", alpha = 0.09), border = NA)
-		polygon(x = c(14.5,21.5,21.5,14.5), y = c(ylim_ple_lo,ylim_ple_lo,ylim_ple_hi,ylim_ple_hi), col = adjustcolor("red", alpha = 0.13), border = NA)
-		text(x = c(3.5,10.5,17.5), y = rep(ylim_ple_lo+100,4), labels = c("10 dates", "40 dates", "80 dates"), cex  = 0.7)	
-		index <- 1
-		
-		for (j in 1:length(index_sample_size)){
-			for (k in 1:length(index_method)){
-				sgl <- ple_data_ss[ple_data_ss$sample_size == index_sample_size[j] & ple_data_ss$method == index_method[k],]
-				
-				if (nrow(sgl)!= 0){
-					sgl$upperCI_norm <- sgl$upperCI - sgl$start_date
-					sgl$lowerCI_norm <- sgl$lowerCI - sgl$start_date
-					
-					lines(x = c(index,index), y = c(mean(sgl$upperCI_norm),mean(sgl$lowerCI_norm)), col = "lightblue3")
-					lines(x = c(index-0.2,index+0.2), y = rep(mean(sgl$upperCI_norm),2), lwd = 2, col = "lightblue4")
-					lines(x = c(index-0.2,index+0.2), y = rep(mean(sgl$lowerCI_norm),2), lwd = 2, col = "lightblue4")
-					axlabs <- append(axlabs,index_method[k])	
-					index <- index + 1
-				}
-			}
-		}
-		axis(side = 1, at = seq(1,pl_num), labels = axlabs, las = 2, cex.axis = 0.5)
-		axlabs <- c()
-	}
-}
-
-dev.off()
 
 # Plot target within CI
 png("../Figures/Fig_2.png", res = 160, height = 1500, width = 1500)
@@ -308,33 +195,6 @@ for (i in 1:length(index_r)){
 
 dev.off()
 
-##### SUPPLEMENTARY
-for (h in 1:length(index_r)){
-	for (i in 1:length(index_Sd)){
-		ple_data_OLE_ss <- ple_data_OLE[ple_data_OLE$r == index_r[h] & ple_data_OLE$Sd == index_Sd[i],]
-		png(paste0("../Figures/Figure_Pleistocene_OLE_SI_Sd_",index_Sd[i],"_r_",index_r[h],".png"), res = 160, height = 1500, width = 1500)
-		par(mfrow=c(2,2))
-		for (j in 1:length(index_method_OLE)){
-			plot(x = c(-1:(pl_num+2)), y = rep(0,(pl_num+4)), type = "l", lty = 2, xlim = c(0,5), ylim = c(-3000,3000), ylab = "centred age", xlab = "", xaxt = "n",  main = paste0("r = ",index_r[h]," Sd = ",index_Sd[i]," method = ", method_OLE_names[j]))
-			abline(h = seq(-3000,3000,100), lty = 2, col = adjustcolor("blue", alpha = 0.1))
-			for (k in 1:length(index_ESS)){
-			sgl <- ple_data_OLE_ss[ple_data_OLE_ss$sample_size == 80 & ple_data_OLE_ss$ESS == index_ESS[k] & ple_data_OLE_ss$method == index_method_OLE[j],]
-			if (nrow(sgl)!= 0){
-					sgl$upperCI_norm <- sgl$upperCI - sgl$start_date
-					sgl$lowerCI_norm <- sgl$lowerCI - sgl$start_date
-					lines(x = c(index_SI[k],index_SI[k]), y = c(mean(sgl$upperCI_norm),mean(sgl$lowerCI_norm)), col = "lightblue3")
-					lines(x = c(index_SI[k]-0.2,index_SI[k]+0.2), y = rep(mean(sgl$upperCI_norm),2), lwd = 2, col = "lightblue4")
-					lines(x = c(index_SI[k]-0.2,index_SI[k]+0.2), y = rep(mean(sgl$lowerCI_norm),2), lwd = 2, col = "lightblue4")
-					axlabs <- append(axlabs,paste0("k = ",sgl$ESS[k]))	
-				}	
-			}
-			axis(side = 1, at = seq(1,4), labels = axlabs, las = 2, cex.axis = 0.8)
-			axlabs <- c()
-			#dev.off()
-		}
-		dev.off()
-	}
-}
 
 ####### Plots for calibration curve
 ## Utilities for for looping
@@ -392,7 +252,7 @@ for (h in 1:length(index_r)){
 	}
 }
 
-##### CHECK COMPUTATION TIMES
+##a### CHECK COMPUTATION TIMES
 time_criwm_hol <- readRDS("../Results/time_criwm_hol.rds")
 time_criwm_upl <- readRDS("../Results/time_criwm_upl.rds")
 time_OLE_medians_hol <- readRDS("../Results/time_OLE_medians_hol.rds")
