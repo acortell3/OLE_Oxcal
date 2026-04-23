@@ -108,6 +108,36 @@ for (i in 1:length(index_r)){
 
 dev.off()
 
+## Plots precision and accuracy
+hol_data$accuracy <- ifelse(hol_data$start_date<hol_data$upperCI & hol_data$start_date >hol_data$lowerCI,TRUE,FALSE)
+
+for (j in 1:length(index_ESS)){
+	for (k in 1:length(index_method)){
+		
+		png(paste0("../Figures/SI_5_Holocene_k_",index_ESS[j],"_method_",index_method[k],".png"), res = 100, height = 1500, width = 1500)
+		par(mfrow = c(3,2), mar=c(7,5,3,5))
+		
+		for (h in 1:length(index_r)){
+			for (i in 1:length(index_Sd)){
+				hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i] & hol_data$ESS == index_ESS[j] & hol_data$method == index_method[k],]
+				lab <- paste0(paste0(0:11,'k-'),paste0(1:12,'k'))
+				hol_data_ss$bracket  <- cut(hol_data_ss$precision,breaks=seq(0,12000,1000),labels = lab)
+				pl_dt <- hol_data_ss |>
+					filter(!is.na(bracket)) |>
+					group_by(bracket) |>
+					summarise(n = n(),accuracy = mean(accuracy == TRUE),.groups = "drop")
+				if (length(lab) > nrow(pl_dt)){
+					lab <- lab[1:nrow(pl_dt)]
+				}
+				barplot(height=pl_dt$n,space = 0,names.arg = lab,las=2,xlab='Precision',ylab='Number of Cases', col = "gold3", main = paste0("r = ",index_r[h]," Sd = ", index_Sd[i]))
+				lines(x=(0:(length(pl_dt$accuracy)-1))+0.5,y=pl_dt$accuracy*(max(pl_dt$n)-20),ylim = c(0,max(pl_dt$n)),pch=21,type='b',lwd=2,cex=2, col = "darkolivegreen", bg = "darkolivegreen4")
+				axis(side=4,at=c(0,max(pl_dt$n)*0.25,max(pl_dt$n)*0.5,max(pl_dt$n)*0.75,max(pl_dt$n)),labels=c(0,0.25,0.5,0.75,1.0),las=2)
+				abline(h=max(pl_dt$n)*0.95,lty=2)
+			}
+		}
+		dev.off()
+	}
+}
 
 ####################
 ######## PLEISTOCENE
@@ -194,3 +224,34 @@ for (i in 1:length(index_r)){
 }
 
 dev.off()
+
+## Plots precision and accuracy
+ple_data$accuracy <- ifelse(ple_data$start_date<ple_data$upperCI & ple_data$start_date >ple_data$lowerCI,TRUE,FALSE)
+
+for (j in 1:length(index_ESS)){
+	for (k in 1:length(index_method)){
+		
+		png(paste0("../Figures/SI_6_Pleistocene_k_",index_ESS[j],"_method_",index_method[k],".png"), res = 100, height = 1500, width = 1500)
+		par(mfrow = c(3,2), mar=c(7,5,3,5))
+		
+		for (h in 1:length(index_r)){
+			for (i in 1:length(index_Sd)){
+				ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i] & ple_data$ESS == index_ESS[j] & ple_data$method == index_method[k],]
+				lab <- paste0(paste0(0:11,'k-'),paste0(1:12,'k'))
+				ple_data_ss$bracket  <- cut(ple_data_ss$precision,breaks=seq(0,12000,1000),labels = lab)
+				pl_dt <- ple_data_ss |>
+					filter(!is.na(bracket)) |>
+					group_by(bracket) |>
+					summarise(n = n(),accuracy = mean(accuracy == TRUE),.groups = "drop")
+				if (length(lab) > nrow(pl_dt)){
+					lab <- lab[1:nrow(pl_dt)]
+				}
+				barplot(height=pl_dt$n,space = 0,names.arg = lab,las=2,xlab='Precision',ylab='Number of Cases', col = "gold3", main = paste0("r = ",index_r[h]," Sd = ", index_Sd[i]))
+				lines(x=(0:(length(pl_dt$accuracy)-1))+0.5,y=pl_dt$accuracy*(max(pl_dt$n)-20),ylim = c(0,max(pl_dt$n)),pch=21,type='b',lwd=2,cex=2, col = "darkolivegreen", bg = "darkolivegreen4")
+				axis(side=4,at=c(0,max(pl_dt$n)*0.25,max(pl_dt$n)*0.5,max(pl_dt$n)*0.75,max(pl_dt$n)),labels=c(0,0.25,0.5,0.75,1.0),las=2)
+				abline(h=max(pl_dt$n)*0.95,lty=2)
+			}
+		}
+		dev.off()
+	}
+}
