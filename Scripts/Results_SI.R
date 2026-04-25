@@ -47,7 +47,7 @@ outs <- rep("gray97",length(ins))
 par(mfrow = c(2,3), mar = c(8,4,4,2))
 for (h in 1:length(index_r)){
 	for (i in 1:length(index_Sd)){
-		hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i],]
+		hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i] & hol_data$sample_size == 80,]
 		## Order to keep consistency with previous plot
 		hol_data_ss <- hol_data_ss[order(hol_data_ss$ESS),]
 		hol_data_ss$group <- paste("k =",hol_data_ss$ESS,"dates",hol_data_ss$method)
@@ -91,7 +91,7 @@ for (i in 1:length(index_r)){
 		counter  <- 1
 		for (k in 1:length(index_ESS)){
 			for (m in 1:length(index_method)){
-				ii  <- which(hol_data$r==index_r[i]&hol_data$Sd==index_Sd[j]&hol_data$ESS==index_ESS[k]&hol_data$method==index_method[m])
+				ii  <- which(hol_data$r==index_r[i]&hol_data$Sd==index_Sd[j]&hol_data$ESS==index_ESS[k]&hol_data$method==index_method[m]&hol_data$sample_size == 80)
 				if(length(ii)>1){
 					tmp <- hol_data[ii,]
 					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
@@ -120,7 +120,7 @@ for (j in 1:length(index_ESS)){
 		
 		for (h in 1:length(index_r)){
 			for (i in 1:length(index_Sd)){
-				hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i] & hol_data$ESS == index_ESS[j] & hol_data$method == index_method[k],]
+				hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i] & hol_data$ESS == index_ESS[j] & hol_data$method == index_method[k] & hol_data$sample_size == 80,]
 				lab <- paste0(paste0(0:11,'k-'),paste0(1:12,'k'))
 				hol_data_ss$bracket  <- cut(hol_data_ss$precision,breaks=seq(0,12000,1000),labels = lab)
 				pl_dt <- hol_data_ss |>
@@ -169,7 +169,7 @@ outs <- rep("gray97",length(ins))
 par(mfrow = c(2,3), mar = c(8,4,4,2))
 for (h in 1:length(index_r)){
 	for (i in 1:length(index_Sd)){
-		ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i],]
+		ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i] & ple_data$sample_size == 80,]
 		## Order to keep consistency with previous plot
 		ple_data_ss <- ple_data_ss[order(ple_data_ss$ESS),]
 		ple_data_ss$group <- paste("k =",ple_data_ss$ESS,"dates",ple_data_ss$method)
@@ -209,7 +209,7 @@ for (i in 1:length(index_r)){
 		counter  <- 1
 		for (k in 1:length(index_ESS)){
 			for (m in 1:length(index_method)){
-				ii  <- which(ple_data$r==index_r[i]&ple_data$Sd==index_Sd[j]&ple_data$ESS==index_ESS[k]&ple_data$method==index_method[m])
+				ii  <- which(ple_data$r==index_r[i]&ple_data$Sd==index_Sd[j]&ple_data$ESS==index_ESS[k]&ple_data$method==index_method[m]&ple_data$sample_size == 80)
 				if(length(ii)>1){
 					tmp <- ple_data[ii,]
 					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
@@ -237,7 +237,7 @@ for (j in 1:length(index_ESS)){
 		
 		for (h in 1:length(index_r)){
 			for (i in 1:length(index_Sd)){
-				ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i] & ple_data$ESS == index_ESS[j] & ple_data$method == index_method[k],]
+				ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i] & ple_data$ESS == index_ESS[j] & ple_data$method == index_method[k] & ple_data$sample_size == 80,]
 				lab <- paste0(paste0(0:11,'k-'),paste0(1:12,'k'))
 				ple_data_ss$bracket  <- cut(ple_data_ss$precision,breaks=seq(0,12000,1000),labels = lab)
 				pl_dt <- ple_data_ss |>
