@@ -181,7 +181,7 @@ for (h in 1:length(index_r)){
 		mat_res <- rbind(mat_res[2,],mat_res[1,])
 		colnames(mat_res) <- names_accuracy
 
-		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Holocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
+		barplot(prop.table(mat_res,2), col = c("white"), las = 2, cex.names = 0.65, main = paste0("Pleistocene, r = ",index_r[h]," Sd = ",index_Sd[i]), border = NA)
 			
 		for (j in 1:ncol(mat_res)){
 			xx = prop.table(mat_res,2)
