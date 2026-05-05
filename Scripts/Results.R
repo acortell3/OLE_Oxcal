@@ -11,14 +11,16 @@ full_data <- readRDS("../Results/full_output.rds")
 #####################
 ####### HOLOCENE
 ## Load data
-hol_data_full <- full_data[full_data$Period == "Holocene",]
+#hol_data_full <- full_data[full_data$Period == "Holocene",]
+hol_data <- full_data[full_data$Period == "Holocene",]
 
 ## subset for OLE
-hol_data_OLE <- hol_data_full[!(hol_data_full$method %in% unique(hol_data_full$method)[c(1,6,7)]),]
+#hol_data_OLE <- hol_data_full[!(hol_data_full$method %in% unique(hol_data_full$method)[c(1,6,7)]),]
 ## subset for rest
-hol_data_rest <- hol_data_full[hol_data_full$method %in% unique(hol_data_full$method)[c(1,6,7)],]
-hol_data_OLE_10 <- hol_data_OLE[hol_data_OLE$ESS == 10,]
-hol_data <- rbind(hol_data_OLE_10,hol_data_rest)
+#hol_data_rest <- hol_data_full[hol_data_full$method %in% unique(hol_data_full$method)[c(1,6,7)],]
+#hol_data_OLE_10 <- hol_data_OLE[hol_data_OLE$ESS == 10,]
+#hol_data <- rbind(hol_data_OLE_10,hol_data_rest)
+#hol_data <- rbind(hol_data_OLE,hol_data_rest)
 
 ## indexes for looping
 index_r <- unique(hol_data$r)
@@ -31,7 +33,7 @@ ylim_hol_lo <- -2000
 ylim_hol_hi <- 750
 
 # Plot target within CI
-names_accuracy <- c("OLE-median, n = 10", "OLE-true, n = 10","OLE-normal, n = 10","OLE-uniform, n = 10","CRIWM, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","OLE-median, n = 40", "OLE-true, n = 40","OLE-normal, n = 40","OLE-uniform, n = 40","CRIWM, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","OLE-median, n = 80", "OLE-true, n = 80","OLE-normal, n = 80","OLE-uniform, n = 80","CRIWM, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
+names_accuracy <- c("CRIWM, n = 10","OLE-median, n = 10", "OLE-true, n = 10","OLE-normal, n = 10","OLE-uniform, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","CRIWM, n = 40","OLE-median, n = 40", "OLE-true, n = 40","OLE-normal, n = 40","OLE-uniform, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","CRIWM, n = 80","OLE-median, n = 80", "OLE-true, n = 80","OLE-normal, n = 80","OLE-uniform, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
 
 png("../Figures/Fig_1.png", res = 160, height = 1500, width = 1500)
 
@@ -44,6 +46,7 @@ par(mfrow = c(2,3), mar = c(8,4,4,2))
 for (h in 1:length(index_r)){
 	for (i in 1:length(index_Sd)){
 		hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i],]
+		hol_data_ss <- hol_data_ss[hol_data_ss$sample_size == hol_data_ss$ESS,]
 		## Order to keep consistency with previous plot
 		hol_data_ss <- hol_data_ss[order(hol_data_ss$sample_size),]
 		hol_data_ss$group <- paste(hol_data_ss$sample_size,"dates",hol_data_ss$method)
@@ -70,7 +73,7 @@ dev.off()
 
 # Plot Precision
 library(vioplot)
-xlabs <- c("OLE-median","OLE-true","OLE-normal","OLE-uniform","CRIWM","BPM-trapezoid","BPM-uniform")
+xlabs <- c("CRIWM","OLE-median","OLE-true","OLE-normal","OLE-uniform","BPM-trapezoid","BPM-uniform")
 
 png("../Figures/Fig_3.png", res = 100, height = 1500, width = 1500)
 
@@ -88,7 +91,7 @@ for (i in 1:length(index_r)){
 		for (k in 1:length(index_sample_size)){
 			text(x=counter+4,y=9700,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
 			for (m in 1:length(index_method)){
-				ii  <- which(hol_data$r==index_r[i]&hol_data$Sd==index_Sd[j]&hol_data$sample_size==index_sample_size[k]&hol_data$method==index_method[m])
+				ii  <- which(hol_data$r==index_r[i]&hol_data$Sd==index_Sd[j]&hol_data$sample_size==index_sample_size[k]&hol_data$method==index_method[m]&hol_data$ESS==index_sample_size[k])
 				if(length(ii)>1){
 					tmp <- hol_data[ii,]
 					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
@@ -109,14 +112,15 @@ dev.off()
 
 ####################
 ######## PLEISTOCENE
-ple_data_full <- full_data[full_data$Period == "Pleistocene",]
+#ple_data_full <- full_data[full_data$Period == "Pleistocene",]
+ple_data <- full_data[full_data$Period == "Pleistocene",]
 
 ## subset for OLE
-ple_data_OLE <- ple_data_full[!(ple_data_full$method %in% unique(ple_data_full$method)[c(1,6,7)]),]
+#ple_data_OLE <- ple_data_full[!(ple_data_full$method %in% unique(ple_data_full$method)[c(1,6,7)]),]
 ## subset for rest
-ple_data_rest <- ple_data_full[ple_data_full$method %in% unique(ple_data_full$method)[c(1,6,7)],]
-ple_data_OLE_10 <- ple_data_OLE[ple_data_OLE$ESS == 10,]
-ple_data <- rbind(ple_data_OLE_10,ple_data_rest)
+#ple_data_rest <- ple_data_full[ple_data_full$method %in% unique(ple_data_full$method)[c(1,6,7)],]
+#ple_data_OLE_10 <- ple_data_OLE[ple_data_OLE$ESS == 10,]
+#ple_data <- rbind(ple_data_OLE_10,ple_data_rest)
 
 ## indexes for looping
 index_r <- unique(ple_data$r)
@@ -135,6 +139,7 @@ par(mfrow = c(2,3), mar = c(8,4,4,2))
 for (h in 1:length(index_r)){
 	for (i in 1:length(index_Sd)){
 		ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i],]
+		ple_data_ss <- ple_data_ss[ple_data_ss$sample_size == ple_data_ss$ESS,]
 		## Order to keep consistency with previous plot
 		ple_data_ss <- ple_data_ss[order(ple_data_ss$sample_size),]
 		ple_data_ss$group <- paste(ple_data_ss$sample_size,"dates",ple_data_ss$method)
@@ -177,7 +182,7 @@ for (i in 1:length(index_r)){
 		for (k in 1:length(index_sample_size)){
 			text(x=counter+4,y=11450,paste('sample size=',index_sample_size[k]),cex=1,pos=2)
 			for (m in 1:length(index_method)){
-				ii  <- which(ple_data$r==index_r[i]&ple_data$Sd==index_Sd[j]&ple_data$sample_size==index_sample_size[k]&ple_data$method==index_method[m])
+				ii  <- which(ple_data$r==index_r[i]&ple_data$Sd==index_Sd[j]&ple_data$sample_size==index_sample_size[k]&ple_data$method==index_method[m]&ple_data$ESS==index_sample_size[k])
 				if(length(ii)>1){
 					tmp <- ple_data[ii,]
 					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
