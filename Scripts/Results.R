@@ -210,6 +210,17 @@ dev.off()
 #index_method <- unique(hol_data$method)
 #pl_num <- length(unique(index_method))*3
 
+#library(nimbleCarbon)
+
+#data(intcal20)
+#hol_cal <- intcal20[intcal20$C14Age < 10000 & intcal20$C14Age > 1000,]
+#ple_cal <- intcal20[intcal20$C14Age < 40000 & intcal20$C14Age > 30000,]
+#intcal20
+
+#par(mfrow = c(1,1))
+#plot(x = hol_cal$CalBP, y = hol_cal$C14Age, xlim = rev(range(hol_cal$CalBP)), ylim = rev(range(hol_cal$C14Age)), type = "l", lwd = 2)
+#lay_mat <- matrix(c(1,1:8,9,9:16), ncol = 2)
+
 ## New
 #index_period <- unique(full_data$Period)
 cols <- c(rep("lightblue2",4),"lightblue3",rep("lightblue4",2)) 
@@ -218,7 +229,10 @@ for (h in 1:length(index_r)){
 	for (k in 1:length(index_Sd)){
 		png(paste0("../Figures/Figure_Cal_curves","_r_",index_r[h],"_Sd_",index_Sd[k],".png"), res = 100, height = 1500, width = 1500)
 		par(mfcol = c(7,2))
-		
+
+		#layout(lay_mat)
+
+		#plot(x = hol_cal$CalBP, y = hol_cal$C14Age, xlim = rev(range(hol_cal$CalBP)), ylim = rev(range(hol_cal$C14Age)), type = "l", lwd = 1)
 		for (j in 1:length(index_method)){
 			subset_plot <- full_data[full_data$Period == "Holocene"  & full_data$method == index_method[j] & full_data$r == index_r[h] & full_data$Sd == index_Sd[k] & full_data$sample_size == 80,]
 			
@@ -233,10 +247,12 @@ for (h in 1:length(index_r)){
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
-				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = cols[j], lwd = 2) 
+				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0 < low,cols[j],"darkred"), lwd = 2)
+			       abline(h=0,lty  = 2)	
 			}
 		}
 		
+		#plot(x = ple_cal$CalBP, y = ple_cal$C14Age, xlim = rev(range(ple_cal$CalBP)), ylim = rev(range(ple_cal$C14Age)), type = "l", lwd = 1)
 		for (j in 1:length(index_method)){
 			subset_plot <- full_data[full_data$Period == "Pleistocene" & full_data$method == index_method[j] & full_data$r == index_r[h] & full_data$Sd == index_Sd[k] & full_data$sample_size == 80,]
 			
@@ -250,8 +266,9 @@ for (h in 1:length(index_r)){
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
-				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = cols[j], lwd = 2) 
+				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0<low,cols[j],"darkred"), lwd = 2) 
 			}
+			       abline(h=0,lty  = 2)	
 		}
 		dev.off()
 	}
@@ -281,5 +298,8 @@ df_format <- as.data.frame(lapply(time_seconds, function(x) {
 					  sprintf("%02.0f:%02.0f:%02.0f",x %/% 3600,(x %% 3600) %/% 60,x %% 60)}
 			  )
 )
+
+
+
 
 
