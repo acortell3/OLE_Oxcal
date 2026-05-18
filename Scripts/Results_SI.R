@@ -446,7 +446,8 @@ for (h in 1:length(index_r)){
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
-				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0<low,"darkslategray4","firebrick1"), lwd = 2) 
+				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0<low,"darkslategray4","firebrick1"), lwd = 2)
+			       abline(h=0,lty=2)	
 			}
 		}
 		dev.off()
