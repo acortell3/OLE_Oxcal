@@ -141,7 +141,7 @@ for (j in 1:length(index_ESS)){
 }
 
 ####################
-#a####### PLEISTOCENE
+######## PLEISTOCENE
 ple_data_full <- full_data[full_data$Period == "Pleistocene",]
 
 ## subset for OLE
@@ -283,7 +283,7 @@ for (h in 1:length(index_r)){
 				ylimvals <- c(-8000,8000)
 			}
 			
-			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
@@ -301,7 +301,7 @@ for (h in 1:length(index_r)){
 				subset_plot <- subset_plot[subset_plot$ESS == 5,]
 				ylimvals <- c(-9500,9500)
 			}
-			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
@@ -329,7 +329,7 @@ for (h in 1:length(index_r)){
 				ylimvals <- c(-5000,5000)
 			}
 			
-			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
@@ -347,7 +347,7 @@ for (h in 1:length(index_r)){
 				subset_plot <- subset_plot[subset_plot$ESS == 10,]
 				ylimvals <- c(-6500,6500)
 			}
-			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
@@ -375,7 +375,7 @@ for (h in 1:length(index_r)){
 				ylimvals <- c(-1500,1500)
 			}
 			
-			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
@@ -393,7 +393,7 @@ for (h in 1:length(index_r)){
 				subset_plot <- subset_plot[subset_plot$ESS == 40,]
 				ylimvals <- c(-3000,3000)
 			}
-			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
@@ -424,7 +424,7 @@ for (h in 1:length(index_r)){
 				ylimvals <- c(-1500,1500)
 			}
 			
-			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
@@ -442,7 +442,7 @@ for (h in 1:length(index_r)){
 				subset_plot <- subset_plot[subset_plot$ESS == 80,]
 				ylimvals <- c(-2500,2500)
 			}
-			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
