@@ -223,7 +223,8 @@ dev.off()
 
 ## New
 #index_period <- unique(full_data$Period)
-cols <- c(rep("lightblue2",4),"lightblue3",rep("lightblue4",2)) 
+method_name <- c("CRIWM","OLE-medians","OLE-true","OLE-normal","OLE-uniform","BPM-trapezoid","BPM-uniform")
+#cols <- c(rep("lightblue2",4),"lightblue3",rep("lightblue4",2)) 
 
 for (h in 1:length(index_r)){
 	for (k in 1:length(index_Sd)){
@@ -243,11 +244,11 @@ for (h in 1:length(index_r)){
 				ylimvals <- c(-5000,5000)
 			}
 			
-			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Holocene ",index_method[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
-				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0 < low,cols[j],"darkred"), lwd = 2)
+				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0 < low,"darkslategray4","firebrick1"), lwd = 2)
 			       abline(h=0,lty  = 2)	
 			}
 		}
@@ -262,11 +263,11 @@ for (h in 1:length(index_r)){
 				subset_plot <- subset_plot[subset_plot$ESS == 10,]
 				ylimvals <- c(-6500,6500)
 			}
-			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Pleistocene ",index_method[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Precision", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
 				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
 				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
-				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0<low,cols[j],"darkred"), lwd = 2) 
+				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0<low,"darkslategray4","firebrick1"), lwd = 2) 
 			}
 			       abline(h=0,lty  = 2)	
 		}
