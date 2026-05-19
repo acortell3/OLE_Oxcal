@@ -455,3 +455,37 @@ for (h in 1:length(index_r)){
 }
 
 
+## Create table of accuracy and precision per each possible parametric combination
+## Create harmonized ESS variable
+ESS_group <- ifelse(grepl("^OLE", full_data$method),full_data$ESS,full_data$sample_size)
+
+## Coverage indicator
+covered <- with(full_data,start_date >= lowerCI & start_date <= upperCI)
+
+## CI width
+CI_width <- abs(full_data$upperCI - full_data$lowerCI)
+
+## Build temporary data frame
+tmp <- data.frame(method = full_data$method,
+		  r = full_data$r,
+		  Sd = full_data$Sd,
+		  sample_size = full_data$sample_size,
+		  ESS_group = ESS_group,
+		  Period = full_data$Period,
+		  covered = covered,
+		  CI_width = CI_width)
+
+## Accuracy (% coverage)
+accuracy_df <- aggregate(covered ~ method + r + Sd + sample_size + ESS_group + Period,data = tmp,FUN = function(x) mean(x) * 100)
+
+## Precision (mean CI width)
+precision_df <- aggregate(CI_width ~ method + r + Sd + sample_size + ESS_group + Period,data = tmp,FUN = mean)
+
+## Merge results
+summary_df <- merge(accuracy_df,precision_df,by = c("method","r","Sd","sample_size","ESS_group","Period"))
+
+## Rename columns
+names(summary_df)[names(summary_df) == "covered"] <- "accuracy"
+names(summary_df)[names(summary_df) == "CI_width"] <- "precision"
+
+write.csv(summary_df,"../Results/table_acc_prec.csv")
