@@ -261,7 +261,7 @@ for (j in 1:length(index_ESS)){
 index_method <- unique(full_data$method)
 
 ## Need to reorder index method
-index_method <- c(index_method[2:5],index_method[1],index_method[6:7])
+#index_method <- c(index_method[2:5],index_method[1],index_method[6:7])
 
 
 ## K = 5
