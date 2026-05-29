@@ -1,7 +1,11 @@
 
-############# FUNCTIONS USED ####################
+######### CODE FOR "UNCERTAIN BEGINNINGS: A COMPARISON OF THE ACCURACY AND PRECISION OF METHODS ESTIMATING EXTREME CHRONOLOGICAL EVENTS", BY A.CORTELL-NICOLAU, E. R. CREMA, AND A. KEY
 
-######## OLE calculation function taken from Key et al. 2024 since sExtinct has been retracted from CRAN
+######### REQUIRED CUSTOM FUNCTIONS
+
+#### Authors: Alfredo Cortell-Nicolau & Enrico R. Crema
+
+######## OLE calculation function adapted from Key et al. 2024 since sExtinct has been retracted from CRAN
 OLE.test <- function(dd, alpha){ ## dd is the dates and alpha is the confidence interval
   # records are sorted in a reverse order, as required by OLE method
   sights <- rev(sort(dd))
@@ -93,7 +97,7 @@ oxcalRunner <- function(c14age,errors,fn=tempfile(fileext='oxcal'),model=c("unif
 	modelscript <- readLines(fn)
 
 	### Run OxCal ----
-	na.check <- TRUE #OxCal for some reason does occasionaly yield '...' in the posterior range. This happens randomly, so the whle loop forces a re-run of the script to avoid reporting NA.
+	na.check <- TRUE #OxCal for some reason does occasionaly yield '...' in the posterior range. This happens randomly, so the while loop forces a re-run of the script to avoid reporting NA.
 	na.rerun <- -1 #this counts how many times the while loop was used to rerun. If na.rerun is 0, it means that there were no issues.
 	while(na.check)
 	{

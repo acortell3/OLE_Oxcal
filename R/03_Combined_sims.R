@@ -1,5 +1,8 @@
 
-######### SCRIPT COMBINING ALL THE METHODS PROPOSED
+######### CODE FOR "UNCERTAIN BEGINNINGS: A COMPARISON OF THE ACCURACY AND PRECISION OF METHODS ESTIMATING EXTREME CHRONOLOGICAL EVENTS", BY A.CORTELL-NICOLAU, E. R. CREMA, AND A. KEY
+
+
+######### CORE SCRIPT: PERFORM SIMULATIONS
 
 #### Authors: Alfredo Cortell-Nicolau & Enrico R. Crema
 
@@ -16,7 +19,7 @@ library(Rextinct)
 library(parallel)
 
 ## Oxcal setup
-quickSetupOxcal() #this should be replaced by actual reference to the file path where oxcal is downloaded (otherwise would install it every time)
+quickSetupOxcal()
 
 ## Load required functions
 source('Functions.R')
@@ -64,11 +67,6 @@ OLE_medians_list <- mclapply(
 						     while (length(unique(dates_median_ss)) != length(dates_median_ss)){
 							     dates_median_ss <- round(runif(length(dates_median_ss),dates_median_ss-5,dates_median_ss+5))
 						     }
-						     #for (b in 2:length(dates_median_ss)){
-						#	     if (dates_median_ss[b] == dates_median_ss[b-1]){
-						#		     dates_median_ss[b] <- dates_median_ss[b] + 1
-						#	     }
-						 #    }
 						     
 						     ## Run OLE
 						     OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
@@ -129,11 +127,7 @@ OLE_resamp_list <- mclapply(
 								    while (length(unique(resamp_dates_temp)) != length(resamp_dates_temp)){
 									    resamp_dates_temp <- round(runif(length(resamp_dates_temp),resamp_dates_temp-5,resamp_dates_temp+5))
 								    }
-								    #for (b in 2:length(resamp_dates_temp)){
-								#	    if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
-								#		    resamp_dates_temp[b] <- resamp_dates_temp[b]+1
-								#	    }
-								 #   }
+								    
 								    OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 								    if (!any(is.na(OLE_res))){
 									    temp_OLE[i,] <- OLE_res
@@ -203,11 +197,7 @@ OLE_resamp_norm_list <- mclapply(
 									 while (length(unique(resamp_dates_temp)) != length(resamp_dates_temp)){
 										 resamp_dates_temp <- round(runif(length(resamp_dates_temp),resamp_dates_temp-5,resamp_dates_temp+5))
 									 }
-									 #for (b in 2:length(resamp_dates_temp)){
-									#	 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
-									#		 resamp_dates_temp[b] <- resamp_dates_temp[b]+1
-									#	 }
-									# }
+									 
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 									 if (!any(is.na(OLE_res))){
 										 temp_OLE[i,] <- OLE_res
@@ -275,10 +265,7 @@ OLE_resamp_unif_list <- mclapply(
 									 while (length(unique(resamp_dates_temp)) != length(resamp_dates_temp)){
 										 resamp_dates_temp <- round(runif(length(resamp_dates_temp),resamp_dates_temp-5,resamp_dates_temp+5))
 									 }
-									 #for (b in 2:length(resamp_dates_temp)){
-									#	 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
-									#		 resamp_dates_temp[b] <- resamp_dates_temp[b]+1}
-									 #}
+									 
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 									 
 									 if (!any(is.na(OLE_res))){
@@ -451,11 +438,6 @@ OLE_medians_list <- mclapply(
 						     while (length(unique(dates_median_ss)) != length(dates_median_ss)){
 							     dates_median_ss <- round(runif(length(dates_median_ss),dates_median_ss-5,dates_median_ss+5))
 						     }
-						     #for (b in 2:length(dates_median_ss)){
-						#	     if (dates_median_ss[b] == dates_median_ss[b-1]){
-						#		     dates_median_ss[b] <- dates_median_ss[b]+1
-						#	     }
-						 #    }
 						     
 						     ## Run OLE
 						     OLE_med_res <- OLE.test(dd = dates_median_ss, alpha = 0.05)
@@ -516,11 +498,7 @@ OLE_resamp_list <- mclapply(
 								    while (length(unique(resamp_dates_temp)) != length(resamp_dates_temp)){
 									    resamp_dates_temp <- round(runif(length(resamp_dates_temp),resamp_dates_temp-5,resamp_dates_temp+5))
 								    }
-								    #for (b in 2:length(resamp_dates_temp)){
-								#	    if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
-								#		    resamp_dates_temp[b] <- resamp_dates_temp[b]+1
-								#	    }
-								 #   }
+								    
 								    OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 								    if (!any(is.na(OLE_res))){
 									    temp_OLE[i,] <- OLE_res
@@ -590,11 +568,7 @@ OLE_resamp_norm_list <- mclapply(
 									 while (length(unique(resamp_dates_temp)) != length(resamp_dates_temp)){
 										 resamp_dates_temp <- round(runif(length(resamp_dates_temp),resamp_dates_temp-5,resamp_dates_temp+5))
 									 }
-									 #for (b in 2:length(resamp_dates_temp)){
-									#	 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
-									#		 resamp_dates_temp[b] <- resamp_dates_temp[b]+1
-									#	 }
-									# }
+									 
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 									 if (!any(is.na(OLE_res))){
 										 temp_OLE[i,] <- OLE_res
@@ -662,10 +636,7 @@ OLE_resamp_unif_list <- mclapply(
 									 while (length(unique(resamp_dates_temp)) != length(resamp_dates_temp)){
 										 resamp_dates_temp <- round(runif(length(resamp_dates_temp),resamp_dates_temp-5,resamp_dates_temp+5))
 									 }
-									 #for (b in 2:length(resamp_dates_temp)){
-									#	 if (resamp_dates_temp[b] == resamp_dates_temp[b-1]){
-									#		 resamp_dates_temp[b] <- resamp_dates_temp[b]+1}
-									# }
+									 
 									 OLE_res <- as.numeric(OLE.test(dd = resamp_dates_temp, alpha = 0.05))
 									 
 									 if (!any(is.na(OLE_res))){

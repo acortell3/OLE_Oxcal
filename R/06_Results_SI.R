@@ -1,6 +1,10 @@
 
+######### CODE FOR "UNCERTAIN BEGINNINGS: A COMPARISON OF THE ACCURACY AND PRECISION OF METHODS ESTIMATING EXTREME CHRONOLOGICAL EVENTS", BY A.CORTELL-NICOLAU, E. R. CREMA, AND A. KEY
 
-###### Script to plot and visualise the results of the paper <whateva>
+
+######### PLOTS AND VISUALISE SI RESULTS
+
+#### Authors: Alfredo Cortell-Nicolau & Enrico R. Crema
 
 #### Load data, utilities and packages
 full_data <- readRDS("../Results/full_output.rds")
@@ -260,10 +264,6 @@ for (j in 1:length(index_ESS)){
 #### CALIBRATION CURVES
 index_method <- unique(full_data$method)
 
-## Need to reorder index method
-#index_method <- c(index_method[2:5],index_method[1],index_method[6:7])
-
-
 ## K = 5
 #cols <- c(rep("lightblue2",4),"lightblue3",rep("lightblue4",2))
 method_name <- c("CRIWM","OLE-medians","OLE-true","OLE-normal","OLE-uniform","BPM-trapezoid","BPM-uniform")
@@ -406,9 +406,6 @@ for (h in 1:length(index_r)){
 }
 
 ## K = 80
-
-#cols <- c(rep("lightblue2",4),"lightblue3",rep("lightblue4",2)) 
-
 for (h in 1:length(index_r)){
 	for (k in 1:length(index_Sd)){
 		png(paste0("../Figures/Figure_Cal_curves_k_80","_r_",index_r[h],"_Sd_",index_Sd[k],".png"), res = 100, height = 1500, width = 1500)

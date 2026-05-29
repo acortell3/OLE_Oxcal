@@ -1,6 +1,10 @@
 
+######### CODE FOR "UNCERTAIN BEGINNINGS: A COMPARISON OF THE ACCURACY AND PRECISION OF METHODS ESTIMATING EXTREME CHRONOLOGICAL EVENTS", BY A.CORTELL-NICOLAU, E. R. CREMA, AND A. KEY
 
-###### Script to plot and visualise the results of the paper <whateva>
+
+#a######## PLOT AND VISUALISE RESULTS
+
+#### Authors: Alfredo Cortell-Nicolau & Enrico R. Crema
 
 #### Load data, utilities and packages
 full_data <- readRDS("../Results/full_output.rds")
@@ -13,14 +17,6 @@ full_data <- readRDS("../Results/full_output.rds")
 ## Load data
 #hol_data_full <- full_data[full_data$Period == "Holocene",]
 hol_data <- full_data[full_data$Period == "Holocene",]
-
-## subset for OLE
-#hol_data_OLE <- hol_data_full[!(hol_data_full$method %in% unique(hol_data_full$method)[c(1,6,7)]),]
-## subset for rest
-#hol_data_rest <- hol_data_full[hol_data_full$method %in% unique(hol_data_full$method)[c(1,6,7)],]
-#hol_data_OLE_10 <- hol_data_OLE[hol_data_OLE$ESS == 10,]
-#hol_data <- rbind(hol_data_OLE_10,hol_data_rest)
-#hol_data <- rbind(hol_data_OLE,hol_data_rest)
 
 ## indexes for looping
 index_r <- unique(hol_data$r)
@@ -112,15 +108,7 @@ dev.off()
 
 ####################
 ######## PLEISTOCENE
-#ple_data_full <- full_data[full_data$Period == "Pleistocene",]
 ple_data <- full_data[full_data$Period == "Pleistocene",]
-
-## subset for OLE
-#ple_data_OLE <- ple_data_full[!(ple_data_full$method %in% unique(ple_data_full$method)[c(1,6,7)]),]
-## subset for rest
-#ple_data_rest <- ple_data_full[ple_data_full$method %in% unique(ple_data_full$method)[c(1,6,7)],]
-#ple_data_OLE_10 <- ple_data_OLE[ple_data_OLE$ESS == 10,]
-#ple_data <- rbind(ple_data_OLE_10,ple_data_rest)
 
 ## indexes for looping
 index_r <- unique(ple_data$r)
@@ -202,38 +190,13 @@ dev.off()
 
 
 ####### Plots for calibration curve
-## Utilities for for looping
-## These are from before
-#index_r <- unique(hol_data$r)
-#index_Sd <- unique(hol_data$Sd)
-#index_sample_size <- sort(unique(hol_data$sample_size))
-#index_method <- unique(hol_data$method)
-#pl_num <- length(unique(index_method))*3
-
-#library(nimbleCarbon)
-
-#data(intcal20)
-#hol_cal <- intcal20[intcal20$C14Age < 10000 & intcal20$C14Age > 1000,]
-#ple_cal <- intcal20[intcal20$C14Age < 40000 & intcal20$C14Age > 30000,]
-#intcal20
-
-#par(mfrow = c(1,1))
-#plot(x = hol_cal$CalBP, y = hol_cal$C14Age, xlim = rev(range(hol_cal$CalBP)), ylim = rev(range(hol_cal$C14Age)), type = "l", lwd = 2)
-#lay_mat <- matrix(c(1,1:8,9,9:16), ncol = 2)
-
-## New
-#index_period <- unique(full_data$Period)
 method_name <- c("CRIWM","OLE-medians","OLE-true","OLE-normal","OLE-uniform","BPM-trapezoid","BPM-uniform")
-#cols <- c(rep("lightblue2",4),"lightblue3",rep("lightblue4",2)) 
 
 for (h in 1:length(index_r)){
 	for (k in 1:length(index_Sd)){
 		png(paste0("../Figures/Figure_Cal_curves","_r_",index_r[h],"_Sd_",index_Sd[k],".png"), res = 100, height = 1500, width = 1500)
 		par(mfcol = c(7,2))
 
-		#layout(lay_mat)
-
-		#plot(x = hol_cal$CalBP, y = hol_cal$C14Age, xlim = rev(range(hol_cal$CalBP)), ylim = rev(range(hol_cal$C14Age)), type = "l", lwd = 1)
 		for (j in 1:length(index_method)){
 			subset_plot <- full_data[full_data$Period == "Holocene"  & full_data$method == index_method[j] & full_data$r == index_r[h] & full_data$Sd == index_Sd[k] & full_data$sample_size == 80,]
 			
@@ -253,7 +216,6 @@ for (h in 1:length(index_r)){
 			}
 		}
 		
-		#plot(x = ple_cal$CalBP, y = ple_cal$C14Age, xlim = rev(range(ple_cal$CalBP)), ylim = rev(range(ple_cal$C14Age)), type = "l", lwd = 1)
 		for (j in 1:length(index_method)){
 			subset_plot <- full_data[full_data$Period == "Pleistocene" & full_data$method == index_method[j] & full_data$r == index_r[h] & full_data$Sd == index_Sd[k] & full_data$sample_size == 80,]
 			

@@ -1,4 +1,10 @@
-####### SCRIPT TO SIMULATE DATES USING A LOGISTIC FUNCTION
+
+######### CODE FOR "UNCERTAIN BEGINNINGS: A COMPARISON OF THE ACCURACY AND PRECISION OF METHODS ESTIMATING EXTREME CHRONOLOGICAL EVENTS", BY A.CORTELL-NICOLAU, E. R. CREMA, AND A. KEY
+
+
+######### SIMULATE DATES USING A LOGISTIC FUNCTION
+
+#### Authors: Alfredo Cortell-Nicolau & Enrico R. Crema
 
 set.seed(123)
 
@@ -29,7 +35,7 @@ for (i in 1:length(start_date)){
 		for (k in 1:length(C14_errors)){
 			for (h in 1:length(sample_size)){
 				modelPlot(dLogisticGrowth,a=start_date[i],b=start_date[i]-1000,params=c(k=0.1,r=r[j]),alpha=1,col='black') #the sampling distribution where k is the proportion of K (carrying capacity).
-				x <- replicate(sample_size[h],rLogisticGrowth(a=start_date[i],b=start_date[i]-1000,k=0.1,r=r[j])) #sample dates=sample_size from the distribution above in calendar time (cannot use n=80 as nimble is unhappy with that)
+				x <- replicate(sample_size[h],rLogisticGrowth(a=start_date[i],b=start_date[i]-1000,k=0.1,r=r[j])) #sample dates=sample_size from the distribution above in calendar time
 				YearsBP <- uncalibrate(x,CRAerrors=C14_errors[k])[,c('rCRA','rError')]
 				simuls[c(i_row:(i_row+sample_size[h]-1)),] <- c(YearsBP[1],YearsBP[2],as.data.frame(rep(start_date[i],sample_size[h])),as.data.frame(rep(r[j],sample_size[h])),as.data.frame(rep(sample_size[h],sample_size[h])))
 				write.table(YearsBP,file = paste0("../Simu_data/Uncal_YearsBP_sim_hol_",i,"_r_",r[j],"_error_",C14_errors[k],"_sample_size_",sample_size[h],".txt"), sep = "\t", row.names = F) ## Savings for CWRIM
@@ -41,7 +47,7 @@ for (i in 1:length(start_date)){
 
 saveRDS(simuls,"../Simu_data/simuls_hol.rds")
 
-##### OLDER UPPER PALAEOLITHIC
+##### OLDER UPPER PLEISTOCENE
 
 ## Set pars for different simulations
 start_date <- sample(30000:40000, 1000, replace = F)
