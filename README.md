@@ -1,4 +1,4 @@
-# Project Name
+# REPRODUCIBILITY FOR
 
 Supplementary material and code for "Uncertain beginnings: A comparison of the accuracy and precision of methods estimating extreme chornological events, by Alfredo Cortell-Nicolau, Enrico R. Crema and Alastair Key. Currently under review.
 
