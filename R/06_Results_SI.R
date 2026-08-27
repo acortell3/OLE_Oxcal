@@ -451,7 +451,6 @@ for (h in 1:length(index_r)){
 	}
 }
 
-
 ## Create table of accuracy and precision per each possible parametric combination
 ## Create harmonized ESS variable
 ESS_group <- ifelse(grepl("^OLE", full_data$method),full_data$ESS,full_data$sample_size)
@@ -486,3 +485,129 @@ names(summary_df)[names(summary_df) == "covered"] <- "accuracy"
 names(summary_df)[names(summary_df) == "CI_width"] <- "precision"
 
 write.csv(summary_df,"../Results/table_acc_prec.csv")
+
+#### OXCAL AGREEMENT INDEXES
+## Retrieve agreement indexes
+oxcal_trap_hol <- readRDS("../Results/oxcal_trap_hol.rds")
+wanted <- c("overallAgreement","start_date","Sd","r","sample_size","ESS")
+
+oxcal_trap_hol <- as.data.frame(do.call(rbind, lapply(oxcal_trap_hol, function(x) {x[wanted]})))
+oxcal_trap_hol[] <- lapply(oxcal_trap_hol,function(x) as.numeric(unlist(x)))
+oxcal_trap_hol <- na.omit(oxcal_trap_hol)
+
+oxcal_trap_hol_vals <- summary_df[summary_df$method == "oxcal_trap" & summary_df$Period == "Holocene",]
+names(oxcal_trap_hol_vals)[5] <- "ESS"
+
+agreement_df_hol_trap <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS,data = oxcal_trap_hol,FUN = mean)
+#names(agreement_df_hol_trap)[9] <- "Agreement_index" 
+
+oxcal_trap_hol_vals <- merge(oxcal_trap_hol_vals,agreement_df_hol_trap,by = c("r", "Sd", "sample_size", "ESS"))
+
+## compute agreement index over 60
+agreement_df60_hol_trap <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_trap_hol, FUN = function(x) mean(x>60))
+names(agreement_df60_hol_trap)[5] <- "Accuracy_agreement_prop_over_60"
+
+## Mean agreement values over 60
+agreement_df60_hol_trap_mean <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_trap_hol[oxcal_trap_hol$overallAgreement > 60,], FUN = mean)
+names(agreement_df60_hol_trap_mean)[5] <- "Mean_accuracy_agreement_over_60"
+
+## Merge both
+oxcal_trap_hol_vals <- merge(oxcal_trap_hol_vals, agreement_df60_hol_trap, by = c("r", "Sd", "sample_size", "ESS"))
+
+oxcal_trap_hol_vals <- merge(oxcal_trap_hol_vals, agreement_df60_hol_trap_mean, by = c("r", "Sd", "sample_size", "ESS"))
+
+## Now Holocene uniform
+oxcal_unif_hol <- readRDS("../Results/oxcal_unif_hol.rds")
+wanted <- c("overallAgreement","start_date","Sd","r","sample_size","ESS")
+
+oxcal_unif_hol <- as.data.frame(do.call(rbind, lapply(oxcal_unif_hol, function(x) {x[wanted]})))
+oxcal_unif_hol[] <- lapply(oxcal_unif_hol,function(x) as.numeric(unlist(x)))
+oxcal_unif_hol <- na.omit(oxcal_unif_hol)
+
+oxcal_unif_hol_vals <- summary_df[summary_df$method == "oxcal_unif" & summary_df$Period == "Holocene",]
+names(oxcal_unif_hol_vals)[5] <- "ESS"
+
+agreement_df_hol_unif <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS,data = oxcal_unif_hol,FUN = mean)
+#names(agreement_df_hol_unif)[9] <- "Agreement_index" 
+
+oxcal_unif_hol_vals <- merge(oxcal_unif_hol_vals,agreement_df_hol_unif,by = c("r", "Sd", "sample_size", "ESS"))
+
+## compute agreement index over 60
+agreement_df60_hol_unif <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_unif_hol, FUN = function(x) mean(x>60))
+names(agreement_df60_hol_unif)[5] <- "Accuracy_agreement_prop_over_60"
+
+## Mean agreement values over 60
+agreement_df60_hol_unif_mean <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_unif_hol[oxcal_unif_hol$overallAgreement > 60,], FUN = mean)
+names(agreement_df60_hol_unif_mean)[5] <- "Mean_accuracy_agreement_over_60"
+
+## Merge both
+oxcal_unif_hol_vals <- merge(oxcal_unif_hol_vals, agreement_df60_hol_unif, by = c("r", "Sd", "sample_size", "ESS"))
+
+oxcal_unif_hol_vals <- merge(oxcal_unif_hol_vals, agreement_df60_hol_unif_mean, by = c("r", "Sd", "sample_size", "ESS"))
+
+#### PLEISTOCENE
+## Retrieve agreement indexes
+oxcal_trap_ple <- readRDS("../Results/oxcal_trap_upl.rds")
+wanted <- c("overallAgreement","start_date","Sd","r","sample_size","ESS")
+
+oxcal_trap_ple <- as.data.frame(do.call(rbind, lapply(oxcal_trap_ple, function(x) {x[wanted]})))
+oxcal_trap_ple[] <- lapply(oxcal_trap_ple,function(x) as.numeric(unlist(x)))
+oxcal_trap_ple <- na.omit(oxcal_trap_ple)
+
+oxcal_trap_ple_vals <- summary_df[summary_df$method == "oxcal_trap" & summary_df$Period == "Pleistocene",]
+names(oxcal_trap_ple_vals)[5] <- "ESS"
+
+agreement_df_ple_trap <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS,data = oxcal_trap_ple,FUN = mean)
+#names(agreement_df_ple_trap)[9] <- "Agreement_index" 
+
+oxcal_trap_ple_vals <- merge(oxcal_trap_ple_vals,agreement_df_ple_trap,by = c("r", "Sd", "sample_size", "ESS"))
+
+## compute agreement index over 60
+agreement_df60_ple_trap <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_trap_ple, FUN = function(x) mean(x>60))
+names(agreement_df60_ple_trap)[5] <- "Accuracy_agreement_prop_over_60"
+
+## Mean agreement values over 60
+agreement_df60_ple_trap_mean <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_trap_ple[oxcal_trap_ple$overallAgreement > 60,], FUN = mean)
+names(agreement_df60_ple_trap_mean)[5] <- "Mean_accuracy_agreement_over_60"
+
+## Merge both
+oxcal_trap_ple_vals <- merge(oxcal_trap_ple_vals, agreement_df60_ple_trap, by = c("r", "Sd", "sample_size", "ESS"))
+
+oxcal_trap_ple_vals <- merge(oxcal_trap_ple_vals, agreement_df60_ple_trap_mean, by = c("r", "Sd", "sample_size", "ESS"))
+
+## Now Holocene uniform
+oxcal_unif_ple <- readRDS("../Results/oxcal_unif_upl.rds")
+wanted <- c("overallAgreement","start_date","Sd","r","sample_size","ESS")
+
+oxcal_unif_ple <- as.data.frame(do.call(rbind, lapply(oxcal_unif_ple, function(x) {x[wanted]})))
+oxcal_unif_ple[] <- lapply(oxcal_unif_ple,function(x) as.numeric(unlist(x)))
+oxcal_unif_ple <- na.omit(oxcal_unif_ple)
+
+oxcal_unif_ple_vals <- summary_df[summary_df$method == "oxcal_unif" & summary_df$Period == "Pleistocene",]
+names(oxcal_unif_ple_vals)[5] <- "ESS"
+
+agreement_df_ple_unif <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS,data = oxcal_unif_ple,FUN = mean)
+#names(agreement_df_ple_unif)[9] <- "Agreement_index" 
+
+oxcal_unif_ple_vals <- merge(oxcal_unif_ple_vals,agreement_df_ple_unif,by = c("r", "Sd", "sample_size", "ESS"))
+
+## compute agreement index over 60
+agreement_df60_ple_unif <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_unif_ple, FUN = function(x) mean(x>60))
+names(agreement_df60_ple_unif)[5] <- "Accuracy_agreement_prop_over_60"
+
+## Mean agreement values over 60
+agreement_df60_ple_unif_mean <- aggregate(overallAgreement ~ r + Sd + sample_size + ESS, data = oxcal_unif_ple[oxcal_unif_ple$overallAgreement > 60,], FUN = mean)
+names(agreement_df60_ple_unif_mean)[5] <- "Mean_accuracy_agreement_over_60"
+
+## Merge both
+oxcal_unif_ple_vals <- merge(oxcal_unif_ple_vals, agreement_df60_ple_unif, by = c("r", "Sd", "sample_size", "ESS"))
+
+oxcal_unif_ple_vals <- merge(oxcal_unif_ple_vals, agreement_df60_ple_unif_mean, by = c("r", "Sd", "sample_size", "ESS"))
+
+## Merge into single table
+agreement_indexes <- rbind(oxcal_trap_hol_vals,oxcal_unif_hol_vals,oxcal_trap_ple_vals,oxcal_unif_ple_vals) 
+agreement_indexes[, 9:11] <- round(agreement_indexes[, 9:11], 4)
+
+write.csv(agreement_indexes,"../Results/agreement_indexes_table.csv")
+
+
