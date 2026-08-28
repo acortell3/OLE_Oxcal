@@ -10,6 +10,19 @@
 full_data <- readRDS("../Results/full_output.rds")
 
 
+#### Create a Summary of Results
+library(dplyr)
+full_data$precision <- abs(full_data$upperCI - full_data$lowerCI)
+full_data$accuracy <- ifelse(full_data$start_date < full_data$upperCI & full_data$start_date > full_data$lowerCI, TRUE, FALSE)	
+gp  <- group_by(full_data, r, Sd, ESS, sample_size, method, Period)
+full_data_summary  <- summarise(gp,avg_accuracy = mean(accuracy, na.rm = TRUE),  
+    avg_precision = mean(precision, na.rm = TRUE),    
+    avg_agreementindex = mean(overallAgreementIndex, na.rm = TRUE),    
+    prop_agrementindex_over_60 = mean(overallAgreementIndex > 60,na.rm = TRUE),
+    avg_accuracy_agreementindex_over_60 = mean(accuracy[overallAgreementIndex > 60],na.rm = TRUE),.groups = "drop") |> as.data.frame()
+
+write.csv(full_data_summary,"../Results/results_summary.csv",row.names=FALSE)
+
 ### SELECT BEST OLE ACCORDING TU NUMBER OF DATES
 
 #####################
