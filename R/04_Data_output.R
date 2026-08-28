@@ -32,6 +32,8 @@ OLE_resamp_caldate_hol <- OLE_resamp_caldate_hol[OLE_resamp_caldate_hol$sample_s
 OLE_resamp_norm_hol <- OLE_resamp_norm_hol[OLE_resamp_norm_hol$sample_size %in% keep,]
 OLE_resamp_unif_hol <- OLE_resamp_unif_hol[OLE_resamp_unif_hol$sample_size %in% keep,]
 
+CRIWM_hol$overallAgreementIndex <- OLE_medians_hol$overallAgreementIndex <- OLE_resamp_caldate_hol$overallAgreementIndex <- OLE_resamp_norm_hol$overallAgreementIndex <- OLE_resamp_unif_hol$overallAgreementIndex <- NA
+
 ## Builds oxcal dfs
 ## Some Oxcal results failed with "Error in BCAD(post.df[,2]: 0 BC/AD is not a valid year". Subset only the ones for which the time range was valid
 oxcal_trap_hol <- oxcal_trap_hol[sapply(oxcal_trap_hol,length)>1]
@@ -46,7 +48,8 @@ oxcal_trap_hol_df <- data.frame("Estimate" = rep(NA,length(oxcal_trap_hol)),
 				"Sd" = sapply(oxcal_trap_hol, function(x) x$Sd),
 				"ESS" = sapply(oxcal_trap_hol, function(x) x$ESS),
 				"sample_size" = sapply(oxcal_trap_hol, function(x) x$ESS),
-				"simID_seed" = rep(NA,length(oxcal_trap_hol)))
+				"simID_seed" = rep(NA,length(oxcal_trap_hol)),
+				"overallAgreementIndex" = sapply(oxcal_trap_hol, function(x) x$overallAgreement))
 
 oxcal_unif_hol_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_hol)),
 				"upperCI" = sapply(oxcal_unif_hol, function(x) x$posteriorRange[1,1]),
@@ -56,7 +59,8 @@ oxcal_unif_hol_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_hol)),
 				"Sd" = sapply(oxcal_unif_hol, function(x) x$Sd),
 				"ESS" = sapply(oxcal_unif_hol, function(x) x$ESS),
 				"sample_size" = sapply(oxcal_unif_hol, function(x) x$ESS),
-				"simID_seed" = rep(NA,length(oxcal_unif_hol)))
+				"simID_seed" = rep(NA,length(oxcal_unif_hol)),
+				"overallAgreementIndex" = sapply(oxcal_unif_hol, function(x) x$overallAgreement))
 
 hol_df <- rbind(CRIWM_hol,OLE_medians_hol,OLE_resamp_caldate_hol,OLE_resamp_norm_hol,OLE_resamp_unif_hol,oxcal_trap_hol_df,oxcal_unif_hol_df)
 
@@ -79,6 +83,9 @@ OLE_resamp_unif_upl <- readRDS(paste0(path,"OLE_resamp_unif_upl.rds"))
 oxcal_trap_upl <- readRDS(paste0(path,"oxcal_trap_upl.rds"))
 oxcal_unif_upl <- readRDS(paste0(path,"oxcal_unif_upl.rds"))
 
+
+CRIWM_upl$overallAgreementIndex <- OLE_medians_upl$overallAgreementIndex <- OLE_resamp_caldate_upl$overallAgreementIndex <- OLE_resamp_norm_upl$overallAgreementIndex <- OLE_resamp_unif_upl$overallAgreementIndex <- NA
+
 ## Builds oxcal dfs
 ## Oxca dfs
 oxcal_trap_upl_df <- data.frame("Estimate" = rep(NA,length(oxcal_trap_upl)),
@@ -89,7 +96,8 @@ oxcal_trap_upl_df <- data.frame("Estimate" = rep(NA,length(oxcal_trap_upl)),
 				"Sd" = sapply(oxcal_trap_upl, function(x) x$Sd),
 				"ESS" = sapply(oxcal_trap_upl, function(x) x$ESS),
 				"sample_size" = sapply(oxcal_trap_upl, function(x) x$ESS),
-				"simID_seed" = rep(NA,length(oxcal_trap_upl)))
+				"simID_seed" = rep(NA,length(oxcal_trap_upl)),
+				"overallAgreementIndex" = sapply(oxcal_trap_upl, function(x) x$overallAgreement))
 
 oxcal_unif_upl_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_upl)),
 				"upperCI" = sapply(oxcal_unif_upl, function(x) x$posteriorRange[1,1]),
@@ -99,7 +107,8 @@ oxcal_unif_upl_df <- data.frame("Estimate" = rep(NA,length(oxcal_unif_upl)),
 				"Sd" = sapply(oxcal_unif_upl, function(x) x$Sd),
 				"ESS" = sapply(oxcal_unif_upl, function(x) x$ESS),
 				"sample_size" = sapply(oxcal_unif_upl, function(x) x$ESS),
-				"simID_seed" = rep(NA,length(oxcal_unif_upl)))
+				"simID_seed" = rep(NA,length(oxcal_unif_upl)),
+				"overallAgreementIndex" = sapply(oxcal_unif_upl, function(x) x$overallAgreement))
 
 upl_df <- rbind(CRIWM_upl,OLE_medians_upl,OLE_resamp_caldate_upl,OLE_resamp_norm_upl,OLE_resamp_unif_upl,oxcal_trap_upl_df,oxcal_unif_upl_df)
 
