@@ -8,8 +8,6 @@
 
 #### Load data, utilities and packages
 full_data <- readRDS("../Results/full_output.rds")
-full_data <- full_data[full_data$method != "OLE_resamp_norm" & full_data$method != "OLE_resamp_unif",]
-
 
 
 ### SELECT BEST OLE ACCORDING TU NUMBER OF DATES
@@ -31,14 +29,12 @@ ylim_hol_lo <- -2000
 ylim_hol_hi <- 750
 
 # Plot target within CI
-names_accuracy <- c("CRIWM, n = 10","OLE-median, n = 10", "OLE-true, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","","CRIWM, n = 40","OLE-median, n = 40", "OLE-true, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","","CRIWM, n = 80","OLE-median, n = 80", "OLE-true, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
+names_accuracy <- c("CRIWM, n = 10","OLE-median, n = 10", "OLE-true, n = 10","OLE-normal, n = 10","OLE-uniform, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","CRIWM, n = 40","OLE-median, n = 40", "OLE-true, n = 40","OLE-normal, n = 40","OLE-uniform, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","CRIWM, n = 80","OLE-median, n = 80", "OLE-true, n = 80","OLE-normal, n = 80","OLE-uniform, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
 
 png("../Figures/Fig_1.png", res = 160, height = 1500, width = 1500)
 
 ## Create colour palettes
-colorblind_palette <- hcl.colors(8,"Turku")
-col_group <- c(colorblind_palette[c(7,3,3,5,5)])
-ins <- c(col_group,"white",col_group,"white",col_group)
+ins <- c(rep("lightsteelblue1",7),rep("lightsteelblue3",7),rep("lightsteelblue4",7))
 outs <- rep("gray97",length(ins))
 
 
@@ -54,8 +50,6 @@ for (h in 1:length(index_r)){
 
 		inside <- hol_data_ss$start_date > hol_data_ss$lowerCI & hol_data_ss$start_date < hol_data_ss$upperCI
 		res <- table(hol_data_ss$group, inside)
-		## Prepare blank rows
-		res <- rbind(res[1:5,],c(1000,0),res[6:10,],c(1000,0),res[11:15,])
 		mat_res <- t(res)
 		mat_res <- rbind(mat_res[2,],mat_res[1,])
 		colnames(mat_res) <- names_accuracy
@@ -75,12 +69,12 @@ dev.off()
 
 # Plot Precision
 library(vioplot)
-xlabs <- c("CRIWM","OLE-median","OLE-true","BPM-trapezoid","BPM-uniform")
+xlabs <- c("CRIWM","OLE-median","OLE-true","OLE-normal","OLE-uniform","BPM-trapezoid","BPM-uniform")
 
 png("../Figures/Fig_3.png", res = 100, height = 1500, width = 1500)
 
 hol_data$precision <- abs(hol_data$upperCI-hol_data$lowerCI)
-colorinchis <- col_group
+colorinchis <- c("darkorange2","darkorange3","darkorange4")
 
 #trim  <- 0.2
 par(mfrow=c(3,2),mar=c(10,4,2,2))
@@ -96,7 +90,7 @@ for (i in 1:length(index_r)){
 				ii  <- which(hol_data$r==index_r[i]&hol_data$Sd==index_Sd[j]&hol_data$sample_size==index_sample_size[k]&hol_data$method==index_method[m]&hol_data$ESS==index_sample_size[k])
 				if(length(ii)>1){
 					tmp <- hol_data[ii,]
-					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[m])
+					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
 					#boxplot(tmp$precision,at=counter,add=T,outline=F,axes=F,lty=1,col = colorinchis[k])
 					axis(1,at=counter,label=xlabs[m],las=2,cex=0.5)
 					counter  <- counter+1
@@ -141,8 +135,6 @@ for (h in 1:length(index_r)){
 
 		inside <- ple_data_ss$start_date > ple_data_ss$lowerCI & ple_data_ss$start_date < ple_data_ss$upperCI
 		res <- table(ple_data_ss$group, inside)
-		## Prepare blank rows
-		res <- rbind(res[1:5,],c(1000,0),res[6:10,],c(1000,0),res[11:15,])
 		mat_res <- t(res)
 		mat_res <- rbind(mat_res[2,],mat_res[1,])
 		colnames(mat_res) <- names_accuracy
@@ -165,6 +157,7 @@ dev.off()
 png("../Figures/Fig_4.png", res = 100, height = 1500, width = 1500)
 
 ple_data$precision <- abs(ple_data$upperCI-ple_data$lowerCI)
+colorinchis <- c("darkorange2","darkorange3","darkorange4")
 
 #trim  <- 0.2
 par(mfrow=c(3,2),mar=c(10,4,2,2))
@@ -180,7 +173,7 @@ for (i in 1:length(index_r)){
 				ii  <- which(ple_data$r==index_r[i]&ple_data$Sd==index_Sd[j]&ple_data$sample_size==index_sample_size[k]&ple_data$method==index_method[m]&ple_data$ESS==index_sample_size[k])
 				if(length(ii)>1){
 					tmp <- ple_data[ii,]
-					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[m])
+					vioplot(tmp$precision, at = counter, add = T, outline = F, axes = F, lty =1 , col = colorinchis[k])
 					#boxplot(tmp$precision,at=counter,add=T,outline=F,axes=F,lty=1,col = colorinchis[k])
 					axis(1,at=counter,label=xlabs[m],las=2,cex=0.5)
 					counter  <- counter+1
