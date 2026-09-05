@@ -2,7 +2,7 @@
 ######### CODE FOR "UNCERTAIN BEGINNINGS: A COMPARISON OF THE ACCURACY AND PRECISION OF METHODS ESTIMATING EXTREME CHRONOLOGICAL EVENTS", BY A.CORTELL-NICOLAU, E. R. CREMA, AND A. KEY
 
 
-#a######## PLOT AND VISUALISE RESULTS
+######### PLOT AND VISUALISE RESULTS
 
 #### Authors: Alfredo Cortell-Nicolau & Enrico R. Crema
 
@@ -41,7 +41,6 @@ col_group <- c(colorblind_palette[c(7,3,3,5,5)])
 ins <- c(col_group,"white",col_group,"white",col_group)
 outs <- rep("gray97",length(ins))
 
-
 par(mfrow = c(2,3), mar = c(8,4,4,2))
 for (h in 1:length(index_r)){
 	for (i in 1:length(index_Sd)){
@@ -53,6 +52,14 @@ for (h in 1:length(index_r)){
 		hol_data_ss$group <- factor(hol_data_ss$group, levels = unique(hol_data_ss$group))
 
 		inside <- hol_data_ss$start_date > hol_data_ss$lowerCI & hol_data_ss$start_date < hol_data_ss$upperCI
+		idx <- which(hol_data_ss$nlegs > 1)
+		inside[idx] <- sapply(idx, function(r) {
+					      n <- hol_data_ss$nlegs[r]
+					      start <- hol_data_ss$start_date[r]
+					      upper <- as.numeric(hol_data_ss[r, 14 + 2 * (0:(n - 1))])
+					      lower <- as.numeric(hol_data_ss[r, 15 + 2 * (0:(n - 1))])
+					      any(start > lower & start < upper, na.rm = TRUE)})
+
 		res <- table(hol_data_ss$group, inside)
 		## Prepare blank rows
 		res <- rbind(res[1:5,],c(1000,0),res[6:10,],c(1000,0),res[11:15,])
@@ -80,6 +87,14 @@ xlabs <- c("CRIWM","OLE-median","OLE-true","BPM-trapezoid","BPM-uniform")
 png("../Figures/Fig_3.png", res = 100, height = 1500, width = 1500)
 
 hol_data$precision <- abs(hol_data$upperCI-hol_data$lowerCI)
+idx <- which(hol_data$nlegs > 1)
+hol_data$precision[idx] <- sapply(idx, function(r){
+					      n <- hol_data$nlegs[r]
+					      uppers <- as.numeric(hol_data_ss[r, 14 + 2 * (0:(n - 1))])
+					      lowers <- as.numeric(hol_data_ss[r, 15 + 2 * (0:(n - 1))])
+					      return(sum(abs(uppers-lowers,na.rm = TRUE)))
+					      })
+
 colorinchis <- col_group
 
 #trim  <- 0.2
@@ -139,7 +154,15 @@ for (h in 1:length(index_r)){
 		ple_data_ss$group <- paste(ple_data_ss$sample_size,"dates",ple_data_ss$method)
 		ple_data_ss$group <- factor(ple_data_ss$group, levels = unique(ple_data_ss$group))
 
-		inside <- ple_data_ss$start_date > ple_data_ss$lowerCI & ple_data_ss$start_date < ple_data_ss$upperCI
+		inside <- ple_data_ss$start_date > ple_data_ss$lowerCI & ple_data_ss$start_date < ple_data_ss$upperCI	
+		idx <- which(ple_data_ss$nlegs > 1)
+		inside[idx] <- sapply(idx, function(r) {
+					      n <- ple_data_ss$nlegs[r]
+					      start <- ple_data_ss$start_date[r]
+					      upper <- as.numeric(ple_data_ss[r, 14 + 2 * (0:(n - 1))])
+					      lower <- as.numeric(ple_data_ss[r, 15 + 2 * (0:(n - 1))])
+					      any(start > lower & start < upper, na.rm = TRUE)})
+		
 		res <- table(ple_data_ss$group, inside)
 		## Prepare blank rows
 		res <- rbind(res[1:5,],c(1000,0),res[6:10,],c(1000,0),res[11:15,])
