@@ -36,8 +36,13 @@ names_accuracy <- c("CRIWM, n = 10","OLE-median, n = 10", "OLE-true, n = 10","BP
 png("../Figures/Fig_1.png", res = 160, height = 1500, width = 1500)
 
 ## Create colour palettes
-colorblind_palette <- hcl.colors(8,"Turku")
-col_group <- c(colorblind_palette[c(7,1,2,5,6)])
+col_group <- c(
+ "#444444",  # dark grey
+  "#E69F00",  # light orange
+  "#D55E00",  # dark orange
+  "#56B4E9",  # light blue
+  "#0072B2"   # dark blue
+)
 ins <- c(col_group,"white",col_group,"white",col_group)
 outs <- rep("gray97",length(ins))
 
