@@ -37,7 +37,7 @@ png("../Figures/Fig_1.png", res = 160, height = 1500, width = 1500)
 
 ## Create colour palettes
 colorblind_palette <- hcl.colors(8,"Turku")
-col_group <- c(colorblind_palette[c(7,3,3,5,5)])
+col_group <- c(colorblind_palette[c(7,1,2,5,6)])
 ins <- c(col_group,"white",col_group,"white",col_group)
 outs <- rep("gray97",length(ins))
 
@@ -90,9 +90,9 @@ hol_data$precision <- abs(hol_data$upperCI-hol_data$lowerCI)
 idx <- which(hol_data$nlegs > 1)
 hol_data$precision[idx] <- sapply(idx, function(r){
 					      n <- hol_data$nlegs[r]
-					      uppers <- as.numeric(hol_data_ss[r, 14 + 2 * (0:(n - 1))])
-					      lowers <- as.numeric(hol_data_ss[r, 15 + 2 * (0:(n - 1))])
-					      return(sum(abs(uppers-lowers,na.rm = TRUE)))
+					      uppers <- as.numeric(hol_data[r, 14 + 2 * (0:(n - 1))])
+					      lowers <- as.numeric(hol_data[r, 15 + 2 * (0:(n - 1))])
+					      return(sum(abs(uppers-lowers)))
 					      })
 
 colorinchis <- col_group
@@ -188,7 +188,13 @@ dev.off()
 png("../Figures/Fig_4.png", res = 100, height = 1500, width = 1500)
 
 ple_data$precision <- abs(ple_data$upperCI-ple_data$lowerCI)
-
+idx <- which(hol_data$nlegs > 1)
+ple_data$precision[idx] <- sapply(idx, function(r){
+					      n <- ple_data$nlegs[r]
+					      uppers <- as.numeric(hol_data[r, 14 + 2 * (0:(n - 1))])
+					      lowers <- as.numeric(hol_data[r, 15 + 2 * (0:(n - 1))])
+					      return(sum(abs(uppers-lowers)))
+					      })
 #trim  <- 0.2
 par(mfrow=c(3,2),mar=c(10,4,2,2))
 for (i in 1:length(index_r)){
@@ -220,12 +226,12 @@ dev.off()
 
 
 ####### Plots for calibration curve
-method_name <- c("CRIWM","OLE-medians","OLE-true","OLE-normal","OLE-uniform","BPM-trapezoid","BPM-uniform")
+method_name <- c("CRIWM","OLE-medians","OLE-true","BPM-trapezoid","BPM-uniform")
 
 for (h in 1:length(index_r)){
 	for (k in 1:length(index_Sd)){
 		png(paste0("../Figures/Figure_Cal_curves","_r_",index_r[h],"_Sd_",index_Sd[k],".png"), res = 100, height = 1500, width = 1500)
-		par(mfcol = c(7,2))
+		par(mfcol = c(5,2))
 
 		for (j in 1:length(index_method)){
 			subset_plot <- full_data[full_data$Period == "Holocene"  & full_data$method == index_method[j] & full_data$r == index_r[h] & full_data$Sd == index_Sd[k] & full_data$sample_size == 80,]
@@ -239,10 +245,27 @@ for (h in 1:length(index_r)){
 			
 			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
 			for (i in 1:nrow(subset_plot)){
-				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
-				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
-				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0 < low,"darkslategray4","firebrick1"), lwd = 2)
-			       abline(h=0,lty  = 2)	
+				if (!is.na(subset_plot$nleg[i]) && subset_plot$nleg[i]>1){
+					n <- subset_plot$nleg[i]
+					uppers <- as.numeric(subset_plot[i, 14 + 2 * (0:(n - 1))])
+    					lowers <- as.numeric(subset_plot[i, 15 + 2 * (0:(n - 1))])
+    
+    					# Does 0 fall inside at least one of the legs?
+    					inside <- any(0 > lowers & 0 < uppers, na.rm = TRUE)
+   
+				        leg_col <- ifelse(inside,"firebrick1","darkslategray4")	
+    					#leg_col <- ifelse(inside, "darkslategray4", "firebrick1")
+					for (x in 1:n){
+						low <- subset_plot[i,13+x] - subset_plot$start_date[i]
+						high <- subset_plot[i,14+x] - subset_plot$start_date[i]
+						lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = leg_col, lwd = 2)
+						abline(h=0,lty  = 2)}	
+					} else {
+						low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
+						high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
+						lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0 < low,"darkslategray4","firebrick1"), lwd = 2)
+						abline(h=0,lty  = 2)
+				}	
 			}
 		}
 		
@@ -256,12 +279,30 @@ for (h in 1:length(index_r)){
 				ylimvals <- c(-6500,6500)
 			}
 			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			
 			for (i in 1:nrow(subset_plot)){
-				low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
-				high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
-				lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0<low,"darkslategray4","firebrick1"), lwd = 2) 
+				if (!is.na(subset_plot$nleg[i]) && subset_plot$nleg[i]>1){
+					n <- subset_plot$nleg[i]
+					uppers <- as.numeric(subset_plot[i, 14 + 2 * (0:(n - 1))])
+					lowers <- as.numeric(subset_plot[i, 15 + 2 * (0:(n - 1))])
+					
+					# Does 0 fall inside at least one of the legs?
+    					inside <- any(0 > lowers & 0 < uppers, na.rm = TRUE)
+   
+				        leg_col <- ifelse(inside,"firebrick1","darkslategray4")	
+    					#leg_col <- ifelse(inside, "darkslategray4", "firebrick1")
+					for (x in 1:n){
+						low <- subset_plot[i,13+x] - subset_plot$start_date[i]
+						high <- subset_plot[i,14+x] - subset_plot$start_date[i]
+						lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = leg_col, lwd = 2)
+						abline(h=0,lty  = 2)}	
+					} else {
+						low <- subset_plot$upperCI[i] - subset_plot$start_date[i]
+						high <- subset_plot$lowerCI[i] - subset_plot$start_date[i]
+						lines(x = rep(subset_plot$start_date[i],2), y = c(low,high), col = ifelse(0>high & 0 < low,"darkslategray4","firebrick1"), lwd = 2)
+						abline(h=0,lty  = 2)
+				}	
 			}
-			       abline(h=0,lty  = 2)	
 		}
 		dev.off()
 	}
