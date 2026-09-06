@@ -53,6 +53,38 @@ write.csv(full_data_summary,"../Results/results_summary.csv",row.names=FALSE)
 
 ### SELECT BEST OLE ACCORDING TU NUMBER OF DATES
 
+##### Aggregated Joint Precision and Accuracy Plots
+
+col_group <- c(
+ "#444444",  # dark grey
+  "#E69F00",  # light orange
+  "#D55E00",  # dark orange
+  "#56B4E9",  # light blue
+  "#0072B2"   # dark blue
+)
+
+#alternative color palette using RColorBrewer
+#library(RColorBrewer) 
+#col_group <- brewer.pal(n = 8, name = "Set2")[c(1:3,7,4)]
+
+joint_plot <- select(full_data_summary,method,avg_accuracy,avg_precision)
+joint_plot$col  <- NA
+joint_plot$col[joint_plot$method == "CRIWM"] <- adjustcolor(col_group[1],0.8)
+joint_plot$col[joint_plot$method == "OLE_medians"] <- adjustcolor(col_group[2],0.8)
+joint_plot$col[joint_plot$method == "OLE_resamp_caldate"] <- adjustcolor(col_group[3],0.8)
+joint_plot$col[joint_plot$method == "oxcal_trap"] <- adjustcolor(col_group[4],0.8)
+joint_plot$col[joint_plot$method == "oxcal_unif"] <- adjustcolor(col_group[5],0.8)
+joint_plot <- subset(joint_plot, !is.na(col)) #remove methods not used in the paper
+
+png("../Figures/Fig_6.png", res = 200, height = 1500, width = 1500)
+plot(joint_plot$avg_precision, joint_plot$avg_accuracy, bg = joint_plot$col, pch = 21, cex = 1.5,
+     xlab = "Average Precision (log-scale)", ylab = "Average Accuracy",,ylim=c(0,1),log='x')
+abline(h = 0.95, lty = 2, col = "gray")
+legend('bottomright', legend = c("CRIWM", "OLE (median)", "OLE (Resampling)", "BPM (Trapezoid)", "BPM (Uniform)"), 
+       pt.bg = col_group, pch = 21, pt.cex = 1.5, bty = 'n')
+dev.off()
+
+
 #####################
 ####### HOLOCENE
 ## Load data
