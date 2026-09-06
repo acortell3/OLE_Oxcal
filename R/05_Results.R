@@ -259,7 +259,6 @@ for (h in 1:length(index_r)){
     					inside <- any(0 > lowers & 0 < uppers, na.rm = TRUE)
    
 				        leg_col <- ifelse(inside,"firebrick1","darkslategray4")	
-    					#leg_col <- ifelse(inside, "darkslategray4", "firebrick1")
 					for (x in 1:n){
 						low <- subset_plot[i,13+x] - subset_plot$start_date[i]
 						high <- subset_plot[i,14+x] - subset_plot$start_date[i]
@@ -295,7 +294,6 @@ for (h in 1:length(index_r)){
     					inside <- any(0 > lowers & 0 < uppers, na.rm = TRUE)
    
 				        leg_col <- ifelse(inside,"firebrick1","darkslategray4")	
-    					#leg_col <- ifelse(inside, "darkslategray4", "firebrick1")
 					for (x in 1:n){
 						low <- subset_plot[i,13+x] - subset_plot$start_date[i]
 						high <- subset_plot[i,14+x] - subset_plot$start_date[i]
