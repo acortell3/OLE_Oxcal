@@ -49,10 +49,20 @@ full_data_summary  <- summarise(gp,avg_accuracy = mean(accuracy, na.rm = TRUE),
 
 
 
-write.csv(full_data_summary,"../Results/results_summary.csv",row.names=FALSE)
+write.csv(full_data_summary,"../Results/supplementary_table_1.csv",row.names=FALSE)
 
 ### SELECT BEST OLE ACCORDING TU NUMBER OF DATES
+## Plot population models
+library(nimbleCarbon)
 
+r_pop <- c(0.01,0.03,0.06)
+
+png("../Figures/SI_Logistic.png", res = 160, height = 1000, width = 1500)
+par(mfrow = c(1,3))
+for (i in 1:3){
+	modelPlot(dLogisticGrowth,a=1001,b=1,params=c(k=0.1,r=r_pop[i]),alpha=1,col='darkred', lwd = 2, main = paste0("Logistic growth with r = ",r_pop[i]))
+}
+dev.off()
 
 #####################
 ####### HOLOCENE
