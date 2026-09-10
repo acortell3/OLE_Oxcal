@@ -31,7 +31,7 @@ ylim_hol_lo <- -2000
 ylim_hol_hi <- 750
 
 # Plot target within CI
-names_accuracy <- c("CRIWM, n = 10","OLE-median, n = 10", "OLE-true, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","","CRIWM, n = 40","OLE-median, n = 40", "OLE-true, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","","CRIWM, n = 80","OLE-median, n = 80", "OLE-true, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
+names_accuracy <- c("CRIWM, n = 10","OLE-median, n = 10", "OLE-resample, n = 10","BPM-trapezoid, n = 10", "BPM-uniform, n = 10","","CRIWM, n = 40","OLE-median, n = 40", "OLE-resample, n = 40","BPM-trapezoid, n = 40", "BPM-uniform, n = 40","","CRIWM, n = 80","OLE-median, n = 80", "OLE-resample, n = 80","BPM-trapezoid, n = 80", "BPM-uniform, n = 80")
 
 png("../Figures/Fig_1.png", res = 160, height = 1500, width = 1500)
 
@@ -47,8 +47,8 @@ ins <- c(col_group,"white",col_group,"white",col_group)
 outs <- rep("gray97",length(ins))
 
 par(mfrow = c(2,3), mar = c(8,4,4,2))
-for (h in 1:length(index_r)){
-	for (i in 1:length(index_Sd)){
+for (i in 1:length(index_Sd)){
+	for (h in 1:length(index_r)){
 		hol_data_ss <- hol_data[hol_data$r == index_r[h] & hol_data$Sd == index_Sd[i],]
 		hol_data_ss <- hol_data_ss[hol_data_ss$sample_size == hol_data_ss$ESS,]
 		## Order to keep consistency with previous plot
@@ -87,7 +87,7 @@ dev.off()
 
 # Plot Precision
 library(vioplot)
-xlabs <- c("CRIWM","OLE-median","OLE-true","BPM-trapezoid","BPM-uniform")
+xlabs <- c("CRIWM","OLE-median","OLE-resample","BPM-trapezoid","BPM-uniform")
 
 png("../Figures/Fig_3.png", res = 100, height = 1500, width = 1500)
 
@@ -150,8 +150,8 @@ ylim_ple_hi <- 2000
 png("../Figures/Fig_2.png", res = 160, height = 1500, width = 1500)
 
 par(mfrow = c(2,3), mar = c(8,4,4,2))
-for (h in 1:length(index_r)){
-	for (i in 1:length(index_Sd)){
+for (i in 1:length(index_Sd)){
+	for (h in 1:length(index_r)){
 		ple_data_ss <- ple_data[ple_data$r == index_r[h] & ple_data$Sd == index_Sd[i],]
 		ple_data_ss <- ple_data_ss[ple_data_ss$sample_size == ple_data_ss$ESS,]
 		## Order to keep consistency with previous plot
@@ -265,7 +265,7 @@ dev.off()
 
 
 ####### Plots for calibration curve
-method_name <- c("CRIWM","OLE-medians","OLE-true","BPM-trapezoid","BPM-uniform")
+method_name <- c("CRIWM","OLE-medians","OLE-resample","BPM-trapezoid","BPM-uniform")
 
 for (h in 1:length(index_r)){
 	for (k in 1:length(index_Sd)){
@@ -282,7 +282,7 @@ for (h in 1:length(index_r)){
 				ylimvals <- c(-5000,5000)
 			}
 			
-			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Holocene ",method_name[j], " r = ",index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(11000:1000), y = rep(0,10001), col = "white", xlim = c(11000,1000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Holocene ",method_name[j]))
 			for (i in 1:nrow(subset_plot)){
 				if (!is.na(subset_plot$nleg[i]) && subset_plot$nleg[i]>1){
 					n <- subset_plot$nleg[i]
@@ -316,7 +316,7 @@ for (h in 1:length(index_r)){
 				subset_plot <- subset_plot[subset_plot$ESS == 10,]
 				ylimvals <- c(-6500,6500)
 			}
-			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Pleistocene ",method_name[j], " r = ", index_r[h], " Sd = ", index_Sd[k]))
+			plot(x=c(40000:30000), y = rep(0,10001), col = "white", xlim = c(40000,30000), ylim = ylimvals, xlab = "Time", ylab = "Centered estimates", main = paste0("Pleistocene ",method_name[j]))
 			
 			for (i in 1:nrow(subset_plot)){
 				if (!is.na(subset_plot$nleg[i]) && subset_plot$nleg[i]>1){
